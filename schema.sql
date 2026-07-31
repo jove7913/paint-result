@@ -22,11 +22,13 @@ create table if not exists paint.workers (
 -- 품번 / 품명 / 컬러 / 도장사양 네 가지만 관리한다. 품명은 영문 하나.
 create table if not exists paint.parts (
   part_no   text primary key,
+  vehicle   text,                                  -- 차종
   name      text,                                  -- 품명 (영문)
   color     text,                                  -- 컬러 코드 (자유 입력)
   spec      text,                                  -- 도장사양
   active    boolean not null default true
 );
+alter table paint.parts add column if not exists vehicle text;
 
 -- 이전 버전(품명 2칸)으로 이미 만들었다면 아래가 자동으로 합쳐준다.
 -- 뷰가 옛 컬럼을 붙잡고 있으므로 먼저 치운다. 뷰는 이 파일 아래쪽에서 다시 만들어진다.
@@ -101,8 +103,10 @@ create table if not exists paint.result_edits (
 -- ═══ 트리거 ═══════════════════════════════════════════════
 
 -- 수정 시 updated_at 갱신 + 이력 기록
+-- 이력 테이블은 사용자가 직접 쓸 수 없게 막아두었으므로
+-- 이 함수만 시스템 권한(security definer)으로 기록한다
 create or replace function paint.log_edit() returns trigger
-language plpgsql as $$
+language plpgsql security definer set search_path = paint, public as $$
 begin
   new.updated_at := now();
   if new.ok_qty + new.ng_qty > 0 and old.ok_qty + old.ng_qty = 0 then
@@ -163,6 +167,7 @@ drop policy if exists p_write  on paint.parts;
 drop policy if exists pl_read  on paint.plans;
 drop policy if exists pl_admin on paint.plans;
 drop policy if exists pl_adhoc on paint.plans;
+drop policy if exists pl_delete on paint.plans;
 drop policy if exists r_read   on paint.results;
 drop policy if exists r_insert on paint.results;
 drop policy if exists r_update on paint.results;
@@ -187,6 +192,8 @@ create policy pl_admin on paint.plans for all    using (paint.is_admin()) with c
 -- 계획에 없는 품번은 작업자도 직접 만들 수 있게 허용
 create policy pl_adhoc on paint.plans for insert
   with check (paint.is_approved() and is_adhoc = true);
+-- 계획 삭제는 관리자만 (FOR ALL 과 별개로 명시해 둔다)
+create policy pl_delete on paint.plans for delete using (paint.is_admin());
 
 -- results: 승인된 사용자는 조회·입력·수정, 삭제는 관리자만
 create policy r_read   on paint.results for select using (paint.is_approved());
@@ -200,6 +207,11 @@ create policy re_read on paint.result_edits for select using (paint.is_approved(
 -- 작업자를 삭제해도 실적·계획 데이터는 남고 이름만 비워지도록 한다
 do $$
 begin
+  -- 실적이 딸린 계획도 함께 지워지도록 연쇄삭제 보장
+  alter table paint.results      drop constraint if exists results_plan_id_fkey;
+  alter table paint.results add constraint results_plan_id_fkey
+    foreign key (plan_id) references paint.plans(id) on delete cascade;
+
   alter table paint.results      drop constraint if exists results_input_by_fkey;
   alter table paint.results      drop constraint if exists results_result_by_fkey;
   alter table paint.plans        drop constraint if exists plans_created_by_fkey;
@@ -236,7 +248,7 @@ end $$;
 --         OK/NG 가 입력되면 done(생산종료)
 create or replace view paint.v_progress as
 select p.id, p.work_date, p.line_id, p.shift, p.seq, p.part_no, p.plan_qty, p.is_adhoc,
-       pt.name, pt.color, pt.spec,
+       pt.vehicle, pt.name, pt.color, pt.spec,
        r.started_at, r.input_qty, r.ok_qty, r.ng_qty, r.ftt_pct, r.comment,
        round(coalesce(r.ok_qty,0)::numeric / nullif(p.plan_qty,0) * 100, 1) as achieve_pct,
        case when r.id is null then 'wait'
@@ -247,11 +259,11 @@ join paint.parts pt on pt.part_no = p.part_no
 left join paint.results r on r.plan_id = p.id;
 
 -- ═══ 초기 데이터 ══════════════════════════════════════════
-insert into paint.parts (part_no, name, color, spec) values
- ('A-1023','Door clip','BK','1C1B mate'),
- ('A-2210','Cover bracket','SL','2C1B metallic'),
- ('B-1140','Hinge cap','NH-731P','1C1B mate'),
- ('B-3302','Nozzle ring','8P4','2C1B semi-gloss')
+insert into paint.parts (vehicle, part_no, name, color, spec) values
+ ('CN7','A-1023','Door clip','BK','1C1B mate'),
+ ('CN7','A-2210','Cover bracket','SL','2C1B metallic'),
+ ('SU2','B-1140','Hinge cap','NH-731P','1C1B mate'),
+ ('SU2','B-3302','Nozzle ring','8P4','2C1B semi-gloss')
 on conflict do nothing;
 
 -- 최초 관리자 지정: 본인 계정으로 가입한 뒤 아래 실행

@@ -1,7 +1,7 @@
 /* 도장 실적 앱 · 서비스 워커
    앱 화면(셸)만 캐시한다. 실적 데이터는 항상 서버에서 가져온다.
    화면을 고칠 때마다 아래 VERSION 을 올리면 사용자 기기에 자동 반영된다. */
-const VERSION = "v2";
+const VERSION = "v3";
 const CACHE = `paint-shell-${VERSION}`;
 
 const SHELL = [

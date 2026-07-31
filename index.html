@@ -57,6 +57,8 @@ button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .btn:active{background:var(--or-d)}
 .btn.ghost{background:var(--card);color:var(--ink);border:1px solid var(--line2)}
 .btn.ghost:active{background:var(--bg)}
+.btn.danger{background:var(--card);color:var(--ng);border:1px solid #F0CFCB}
+.btn.danger .es{color:var(--ink3)}
 .btn.sm{padding:10px;font-size:13px;border-radius:10px}
 .btn .es{color:rgba(255,255,255,.75)}
 .btn.ghost .es{color:var(--ink3)}
@@ -191,6 +193,54 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
 .mrow .nm i{font-style:normal;display:block;color:var(--ink3);font-size:11px}
 
 .bulk{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.wide{max-width:980px}
+.selbar{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.selbar .seg button{font-size:12.5px;padding:8px 4px}
+#dashLine button{font-size:12px;padding:8px 2px}
+.vh{font-size:10.5px;font-weight:700;padding:2px 6px;border-radius:5px;background:#EEF1FA;color:#3B4E86;flex:none}
+
+/* ── 화면 크기 자동 대응 ── */
+@media (max-width:359px){
+  body{font-size:14px}
+  .wrap{padding:0 10px}
+  .q input{font-size:22px}
+  .mbox b{font-size:15px}
+}
+@media (min-width:700px){
+  .wrap{max-width:900px}
+  .wrap.wide{max-width:1040px}
+  .lgrid{grid-template-columns:1fr 1fr}
+  #planList{display:grid;grid-template-columns:1fr 1fr;gap:0 10px;align-items:start}
+  #dashList{display:grid;grid-template-columns:1fr 1fr;gap:0 10px;align-items:start}
+  #masterList,#planAdmin{font-size:13.5px}
+}
+@media (min-width:1080px){
+  .wrap{max-width:1120px}
+  .wrap.wide{max-width:1200px}
+  .lgrid{grid-template-columns:repeat(3,1fr)}
+  #dashList{grid-template-columns:repeat(3,1fr)}
+  #planList{grid-template-columns:repeat(3,1fr)}
+}
+.pform{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.pfilter{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap}
+@media (min-width:760px){
+  .pform{grid-template-columns:repeat(5,1fr)}
+  .prow{font-size:13px}
+}
+.prow{display:flex;flex-wrap:wrap;align-items:center;gap:5px 10px;padding:11px 13px;
+  border-bottom:1px solid var(--line);font-size:12.5px}
+.prow:last-child{border:0}
+.prow.past{opacity:.55}
+.pd{font-weight:700;font-variant-numeric:tabular-nums;min-width:5.2em}
+.pdt{font-size:10.5px;font-weight:600;padding:3px 7px;border-radius:6px;background:var(--bg);color:var(--ink2)}
+.pdt.n{background:#EEF1FA;color:#3B4E86}
+.pno{font-weight:700;font-size:13.5px;min-width:7.5em}
+.pnm{color:var(--ink3);flex:1;min-width:6em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pq{font-variant-numeric:tabular-nums;color:var(--ink2)}
+.pq b{color:var(--ink);font-weight:700}
+.pa{display:flex;gap:6px;margin-left:auto}
+.dsep{background:var(--bg);padding:7px 13px;font-size:11.5px;font-weight:700;color:var(--ink2);
+  border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
 .srow{display:flex;align-items:center;gap:10px;padding:12px 13px;border-bottom:1px solid var(--line)}
 .srow:last-child{border:0}
 .srow .av{width:34px;height:34px;border-radius:50%;background:var(--bg);color:var(--ink2);flex:none;
@@ -205,6 +255,8 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
 .sbtn:active{background:var(--bg)}
 .sbtn.go{background:var(--or);border-color:var(--or);color:#fff}
 .sbtn.off{color:var(--ng);border-color:#F0CFCB}
+.sbtn.cf,.btn.cf{background:var(--ng);border-color:var(--ng);color:#fff}
+.btn.cf .es{color:rgba(255,255,255,.8)}
 .pact{flex:none;display:flex;align-items:center}
 .startb{border:1px solid var(--or);background:var(--or-s);color:var(--or-d);border-radius:10px;
   padding:9px 10px;font-size:11.5px;font-weight:700;cursor:pointer;line-height:1.2;text-align:center;white-space:nowrap}
@@ -338,6 +390,31 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
 .tvi .sw{width:.72em;height:.72em;border-radius:2px;flex:none;border:1px solid rgba(128,128,128,.45)}
 .tvmore{font-size:clamp(8px,.66vw,13px);color:var(--tvdim);text-align:center;padding-top:3px}
 .tvnone{font-size:12px;color:var(--tvdim);padding:12px 0 4px;text-align:center}
+
+/* ── 전체화면 순환(슬라이드) 모드 ── */
+.tvgrid.solo{grid-template-columns:1fr;grid-template-rows:1fr}
+.tvgrid.solo .tvt{border-left-width:clamp(6px,.7vw,14px)}
+.tvgrid.solo .tvln{font-size:clamp(22px,3.2vw,62px)}
+.tvgrid.solo .tvln i{font-size:.5em}
+.tvgrid.solo .tvchip{font-size:clamp(12px,1.25vw,24px);padding:6px 14px}
+.tvgrid.solo .tvbig{font-size:clamp(56px,10vw,180px)}
+.tvgrid.solo .tvratio{font-size:clamp(15px,1.9vw,36px)}
+.tvgrid.solo .tvb{height:clamp(11px,1.3vw,26px)}
+.tvgrid.solo .tvn{font-size:clamp(14px,1.5vw,29px);gap:clamp(14px,1.8vw,34px)}
+.tvgrid.solo .tvi,.tvgrid.solo .tvih{font-size:clamp(13px,1.45vw,27px);gap:clamp(6px,.7vw,14px)}
+.tvgrid.solo .tvitems.two .tvi,.tvgrid.solo .tvitems.two .tvih{font-size:clamp(11px,1.15vw,22px)}
+.tvgrid.solo .tvmr{font-size:clamp(13px,1.4vw,26px)}
+.tvgrid.solo .tvmr .bar{height:clamp(8px,.9vw,18px)}
+.tvgrid.solo .tvmore{font-size:clamp(12px,1.15vw,22px)}
+.tvdots{display:flex;align-items:center;justify-content:center;gap:clamp(6px,.7vw,14px);
+  padding-top:clamp(6px,.7vw,13px)}
+.tvdots span{width:clamp(7px,.7vw,14px);height:clamp(7px,.7vw,14px);border-radius:50%;
+  background:var(--tvline);transition:background .3s,transform .3s;cursor:pointer}
+.tvdots span.on{background:var(--tvfill);transform:scale(1.35)}
+.tvprog{height:3px;background:var(--tvline);border-radius:99px;overflow:hidden;margin-bottom:clamp(5px,.6vw,10px)}
+.tvprog i{display:block;height:100%;background:var(--tvfill);width:0}
+.tvprog.go i{animation:tvfill linear forwards}
+@keyframes tvfill{from{width:0}to{width:100%}}
 .tvbtn{width:100%;border:1px solid var(--line2);background:var(--card);color:var(--ink);border-radius:11px;
   padding:13px;font-weight:600;cursor:pointer;margin-bottom:12px;line-height:1.25}
 .tvbtn:active{background:var(--bg)}
@@ -389,13 +466,25 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
         <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg></button>
       <div class="mark" id="brand">NKU</div>
       <h1 id="barTitle">라인 선택 <i class="es">Selecciona una línea</i></h1>
-      <button class="who" onclick="logout()" title="로그아웃 · Cerrar sesión">
+      <button class="who" onclick="logout(event)" title="로그아웃 · Cerrar sesión">
         <b id="whoName">—</b><span id="whoMeta">—</span></button>
     </div>
   </header>
 
   <section id="v-home" class="wrap">
-    <div class="sec"><h2>라인 선택 <span id="dToday" style="color:var(--ink3);font-weight:400"></span>
+    <div class="card pad selbar">
+      <label class="f" style="margin:0;flex:1;min-width:9.5em"><span>일자<i class="es">Fecha</i></span>
+        <input class="i" id="selDate" type="date" onchange="selChange()"></label>
+      <div style="flex:1;min-width:11em">
+        <span style="font-size:12.5px;font-weight:600;display:block;margin-bottom:5px">근무조<i class="es">Turno</i></span>
+        <div class="seg" style="margin:0">
+          <button id="selA" class="on" onclick="setShift('A')">주간 · Día</button>
+          <button id="selB" onclick="setShift('B')">야간 · Noche</button>
+        </div>
+      </div>
+      <button class="btn ghost sm" onclick="selNow()" style="width:auto;padding:11px 14px;flex:none">현재<i class="es">Ahora</i></button>
+    </div>
+    <div class="sec"><h2>라인 선택 <span id="selNow2" style="color:var(--or-d);font-weight:600"></span>
       <i class="es">Toca la línea donde estás trabajando</i></h2></div>
     <div class="lgrid" id="lineGrid" style="margin-bottom:24px"></div>
   </section>
@@ -432,11 +521,12 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
     </div>
   </section>
 
-  <section id="v-plan" class="wrap hide">
+  <section id="v-plan" class="wrap wide hide">
     <div class="sec"><h2>계획 일괄등록<i class="es">Carga masiva de planes</i></h2></div>
     <div class="card pad" style="margin-bottom:14px">
-      <p class="note" style="margin:0 0 11px">양식은 <b>라인 · 품번 · 계획수량</b> 세 칸이다. 엑셀에서 채운 뒤 CSV로 저장해 올리면 된다.
-        <span class="es">Descarga la plantilla, llénala en Excel, guárdala como CSV y súbela.</span></p>
+      <p class="note" style="margin:0 0 11px">양식은 <b>일자 · 근무조 · 라인 · 품번 · 계획수량</b> 다섯 칸이다.
+        일자는 2026-08-05 형식, 근무조는 주 또는 야(A/B)로 쓴다. 며칠치를 한 번에 올려도 된다.
+        <span class="es">Cinco columnas: fecha, turno (주/야), línea, parte, cantidad. Puedes cargar varios días a la vez.</span></p>
       <div class="bulk">
         <button class="btn ghost sm" onclick="tplPlan()">양식 내려받기<i class="es">Plantilla</i></button>
         <button class="btn ghost sm" onclick="$('upPlan').click()">양식 업로드<i class="es">Subir CSV</i></button>
@@ -447,23 +537,41 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
 
     <div class="sec"><h2>계획 개별등록<i class="es">Registrar un plan</i></h2></div>
     <div class="card pad">
-      <div class="row2">
+      <div class="pform">
+        <label class="f"><span>일자<i class="es">Fecha</i></span>
+          <input class="i" id="pDate" type="date"></label>
+        <label class="f"><span>근무조<i class="es">Turno</i></span>
+          <select class="i" id="pShift"><option value="A">주간 · Día (A)</option><option value="B">야간 · Noche (B)</option></select></label>
         <label class="f"><span>라인<i class="es">Línea</i></span>
           <select class="i" id="pLine">
             <option value="1">1번라인</option><option value="2">2번라인</option>
             <option value="3">3번라인</option><option value="4">4번라인</option>
             <option value="5">5번라인</option></select></label>
-        <label class="f"><span>근무조<i class="es">Turno</i></span>
-          <select class="i" id="pShift"><option value="A">A조 주간</option><option value="B">B조 야간</option></select></label>
+        <label class="f"><span>품번<i class="es">Número de parte</i></span>
+          <button class="btn ghost" id="pPart" onclick="openSearch('plan')" style="text-align:left;padding:12px">
+            품번 선택 <i class="es">Seleccionar</i></button></label>
+        <label class="f"><span>계획수량<i class="es">Cantidad</i></span>
+          <input class="i" id="pQty" type="number" inputmode="numeric" placeholder="0"></label>
       </div>
-      <label class="f"><span>품번<i class="es">Número de parte</i></span>
-        <button class="btn ghost" id="pPart" onclick="openSearch('plan')" style="text-align:left;padding:12px">
-          품번 선택 <i class="es">Seleccionar del maestro</i></button></label>
-      <label class="f"><span>계획수량<i class="es">Cantidad planeada</i></span>
-        <input class="i" id="pQty" type="number" inputmode="numeric" placeholder="0"></label>
       <button class="btn" onclick="addPlan()">계획 등록<i class="es">Guardar plan</i></button>
     </div>
-    <div class="sec"><h2>등록된 계획<i class="es">Planes registrados</i></h2></div>
+
+    <div class="sec"><h2>등록된 계획<i class="es">Planes registrados — toca 수정 para corregir</i></h2></div>
+    <div class="card pad" style="margin-bottom:10px">
+      <div class="pfilter">
+        <label class="f" style="margin:0;flex:1;min-width:9.5em"><span>조회 일자<i class="es">Fecha</i></span>
+          <input class="i" id="pvDate" type="date" onchange="renderPlanAdmin()"></label>
+        <div style="flex:1.4;min-width:13em">
+          <span style="font-size:12.5px;font-weight:600;display:block;margin-bottom:5px">근무조<i class="es">Turno</i></span>
+          <div class="seg" id="pvSeg" style="margin:0">
+            <button class="on" onclick="setPvShift('all',this)">전체</button>
+            <button onclick="setPvShift('A',this)">주간 · Día</button>
+            <button onclick="setPvShift('B',this)">야간 · Noche</button>
+          </div>
+        </div>
+        <button class="btn ghost sm" onclick="pvAllDates()" style="width:auto;padding:11px 14px;flex:none">전체 일자<i class="es">Todas</i></button>
+      </div>
+    </div>
     <div class="card" id="planAdmin" style="margin-bottom:24px"></div>
   </section>
 
@@ -471,6 +579,14 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
     <div class="sec"><h2>실시간 현황<i class="es">Estado en tiempo real</i></h2></div>
     <button class="tvbtn" onclick="openTV()">TV 화면으로 보기<i class="es">Abrir vista de TV — 6 paneles</i></button>
     <div class="sum" id="dashSum"></div>
+    <div class="seg" id="dashLine" style="margin-bottom:8px">
+      <button class="on" onclick="setLine('all',this)">전체</button>
+      <button onclick="setLine('1',this)">1L</button>
+      <button onclick="setLine('2',this)">2L</button>
+      <button onclick="setLine('3',this)">3L</button>
+      <button onclick="setLine('4',this)">4L</button>
+      <button onclick="setLine('5',this)">5L</button>
+    </div>
     <div class="seg" id="dashSeg">
       <button class="on" onclick="setFilter('all',this)">전체 · Todo</button>
       <button onclick="setFilter('run',this)">투입중 · En proceso</button>
@@ -482,8 +598,8 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
   <section id="v-master" class="wrap hide">
     <div class="sec"><h2>마스터 일괄등록<i class="es">Carga masiva del maestro</i></h2></div>
     <div class="card pad" style="margin-bottom:14px">
-      <p class="note" style="margin:0 0 11px">양식은 <b>품번 · 품명 · 컬러 · 도장사양</b> 네 칸이다. 컬러 코드는 자유롭게 쓰면 된다.
-        <span class="es">Cuatro columnas. El código de color es libre.</span></p>
+      <p class="note" style="margin:0 0 11px">양식은 <b>차종 · 품번 · 품명 · 컬러 · 도장사양</b> 다섯 칸이다. 컬러 코드는 자유롭게 쓰면 된다.
+        <span class="es">Cinco columnas: modelo, parte, nombre, color, especificación.</span></p>
       <div class="bulk">
         <button class="btn ghost sm" onclick="tplPart()">양식 내려받기<i class="es">Plantilla</i></button>
         <button class="btn ghost sm" onclick="$('upPart').click()">양식 업로드<i class="es">Subir CSV</i></button>
@@ -494,6 +610,8 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
 
     <div class="sec"><h2>마스터 개별등록<i class="es">Agregar una parte</i></h2></div>
     <div class="card pad" style="margin-bottom:12px">
+      <label class="f"><span>차종<i class="es">Modelo de vehículo</i></span>
+        <input class="i" id="mVh" placeholder="예 / ej. CN7, SU2"></label>
       <label class="f"><span>품번<i class="es">Número de parte</i></span>
         <input class="i" id="mNo" placeholder="A-1023"></label>
       <label class="f"><span>품명<i class="es">Description</i></span>
@@ -512,7 +630,9 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
     <div class="card" id="staffWait" style="margin-bottom:6px"></div>
     <div class="sec"><h2>작업자 목록<i class="es">Lista de personal</i></h2></div>
     <div class="card" id="staffList"></div>
-    <button class="btn ghost" onclick="logout()" style="margin:14px 0 24px">
+    <p class="note" style="margin:10px 2px 0;text-align:center;color:var(--ink3)">
+      빌드 <b id="buildTag">—</b></p>
+    <button class="btn ghost" onclick="logout(event)" style="margin:14px 0 24px">
       로그아웃<i class="es">Cerrar sesión</i></button>
   </section>
 
@@ -536,6 +656,33 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
 </div>
 
 <div class="scrim" id="scrim" onclick="closeAll()"></div>
+<div class="sheet" id="shPlan">
+  <div class="grab"></div>
+  <div class="in">
+    <div class="sh-h"><h3 id="peTitle">계획 수정</h3><div class="es">Corregir plan</div></div>
+    <div id="peErr" class="err hide"></div>
+    <div class="row2">
+      <label class="f"><span>일자<i class="es">Fecha</i></span>
+        <input class="i" id="peDate" type="date"></label>
+      <label class="f"><span>근무조<i class="es">Turno</i></span>
+        <select class="i" id="peShift"><option value="A">주간 · Día (A)</option><option value="B">야간 · Noche (B)</option></select></label>
+    </div>
+    <div class="row2">
+      <label class="f"><span>라인<i class="es">Línea</i></span>
+        <select class="i" id="peLine">
+          <option value="1">1번라인</option><option value="2">2번라인</option>
+          <option value="3">3번라인</option><option value="4">4번라인</option>
+          <option value="5">5번라인</option></select></label>
+      <label class="f"><span>계획수량<i class="es">Cantidad</i></span>
+        <input class="i" id="peQty" type="number" inputmode="numeric"></label>
+    </div>
+    <div class="trail" id="peInfo"></div>
+    <button class="btn" type="button" data-act="save">수정 저장<i class="es">Guardar cambios</i></button>
+    <button class="btn danger" type="button" data-act="delete" style="margin-top:8px">계획 삭제<i class="es">Eliminar plan</i></button>
+    <button class="btn ghost" type="button" data-act="close" style="margin-top:8px">닫기<i class="es">Cerrar</i></button>
+  </div>
+</div>
+
 <div class="sheet" id="shSearch">
   <div class="grab"></div>
   <div class="in">
@@ -558,10 +705,13 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
       <div class="tvclock" id="tvClock">--:--</div>
       <div class="tvsync" id="tvSync">—</div>
     </div>
-    <button class="tvx" onclick="tvTheme()" id="tvThemeBtn">밝게 · Claro</button>
+    <button class="tvx" onclick="tvSlideToggle()" id="tvSlideBtn">순환 · Rotar</button>
+      <button class="tvx" onclick="tvTheme()" id="tvThemeBtn">밝게 · Claro</button>
     <button class="tvx" onclick="closeTV()">닫기 · Salir</button>
   </div>
+  <div class="tvprog hide" id="tvProg"><i></i></div>
   <div class="tvgrid" id="tvGrid"></div>
+  <div class="tvdots hide" id="tvDots"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -619,8 +769,9 @@ let PARTS=[], PLANS=[], RESULTS=[], WORKERS={}, STAFF=[];
 const today = () => new Date().toISOString().slice(0,10);
 
 let USER=null, curLine=null, curPlan=null, curRes=null, searchMode="plan", view="home", seq=100;
+const BUILD="2026-07-31-11";
 const $=id=>document.getElementById(id);
-const part=no=>PARTS.find(p=>p.no===no)||{no,nm:"—",c:"BK",sp:""};
+const part=no=>PARTS.find(p=>p.no===no)||{no,nm:"—",c:"BK",sp:"",vh:""};
 const res=pid=>RESULTS.find(r=>r.pid===pid)||null;
 const acc=pid=>{const r=res(pid);return r?{i:r.in,o:r.ok,n:r.ng}:{i:0,o:0,n:0};};
 const pending=r=>r&&r.ok+r.ng<r.in;
@@ -630,6 +781,73 @@ const ST={wait:["대기 · Sin iniciar","wait"],run:["투입중 · En proceso","
 const chip=k=>`<span class="st ${ST[k][1]}">${k==="run"?'<i class="ldot"></i>':""}${ST[k][0]}</span>`;
 const ftt=r=>r&&r.in?r.ok/r.in*100:null;
 const now=()=>new Date().toTimeString().slice(0,5);
+
+/* ═══ 날짜 · 근무조 유틸 ═══ */
+const TODAY = new Date().toISOString().slice(0,10);
+const YESTERDAY = (()=>{const d=new Date(); d.setDate(d.getDate()-1); return d.toISOString().slice(0,10);})();
+const dayPlans = () => PLANS.filter(p=>p.date===TODAY);
+const SH = {A:"주간 · Día", B:"야간 · Noche"};
+const dLabel = d => {
+  if(!d) return "";
+  const [y,m,dd]=d.split("-");
+  const w=["일","월","화","수","목","금","토"][new Date(d+"T00:00:00").getDay()];
+  return `${m}/${dd}(${w})`;
+};
+function parseDate(v){
+  const t=String(v||"").trim().replace(/[./]/g,"-");
+  const m=t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if(!m) return null;
+  return `${m[1]}-${String(m[2]).padStart(2,"0")}-${String(m[3]).padStart(2,"0")}`;
+}
+function parseShift(v){
+  const t=String(v||"").trim().toUpperCase();
+  if(!t) return null;
+  if(/^(A|주|주간|DIA|DÍA|DAY)/.test(t)) return "A";
+  if(/^(B|야|야간|NOCHE|NIGHT)/.test(t)) return "B";
+  return null;
+}
+
+/* ═══ 근무 시간대 자동 판별 ═══
+   주간 07:30~19:30 · 야간 19:30~다음날 07:30
+   새벽 시간(00:00~07:30)은 전날 야간조로 본다 */
+function autoSel(){
+  const n=new Date(), m=n.getHours()*60+n.getMinutes(), d=new Date(n);
+  let shift;
+  if(m < 7*60+30){ shift="B"; d.setDate(d.getDate()-1); }
+  else if(m < 19*60+30){ shift="A"; }
+  else { shift="B"; }
+  return {date:d.toISOString().slice(0,10), shift};
+}
+let SEL = autoSel();
+function autoSelSmart(){
+  const a=autoSel(), has=(d,s)=>PLANS.some(p=>p.date===d&&p.shift===s);
+  if(has(a.date,a.shift)) return a;
+  const other=a.shift==="A"?"B":"A";
+  if(has(a.date,other)) return {date:a.date,shift:other};
+  if(has(TODAY,"A")) return {date:TODAY,shift:"A"};
+  if(has(TODAY,"B")) return {date:TODAY,shift:"B"};
+  return a;
+}
+
+const selPlans = () => PLANS.filter(p=>p.date===SEL.date && p.shift===SEL.shift);
+const tvPlans  = () => { const a=autoSel(); return PLANS.filter(p=>p.date===a.date && p.shift===a.shift); };
+function selApply(){
+  $("selDate").value=SEL.date;
+  $("selA").classList.toggle("on",SEL.shift==="A");
+  $("selB").classList.toggle("on",SEL.shift==="B");
+  const el=$("selNow2"); if(el) el.textContent=`${dLabel(SEL.date)} ${SH[SEL.shift]}`;
+}
+function selChange(){ SEL.date=$("selDate").value||SEL.date; selApply(); render(); }
+function setShift(s){ SEL.shift=s; selApply(); render(); }
+function selNow(){ SEL=autoSel(); selApply(); render(); toast(`${dLabel(SEL.date)} ${SH[SEL.shift]} · Ahora`); }
+
+let pvShiftSel="all";
+function pvAllDates(){ $("pvDate").value=""; renderPlanAdmin(); }
+function setPvShift(v,btn){
+  pvShiftSel=v;
+  [...$("pvSeg").children].forEach(b=>b.classList.toggle("on",b===btn));
+  renderPlanAdmin();
+}
 
 /* AUTH */
 let mode="in";
@@ -674,14 +892,17 @@ async function afterLogin(){
   $("whoName").textContent=USER.name; $("whoMeta").textContent=`사번 ${USER.emp}`;
   const d=new Date(); $("dToday").textContent=`${d.getMonth()+1}/${d.getDate()}`;
   ["t-plan","t-master","t-staff"].forEach(t=>$(t).classList.toggle("hide",!USER.admin));
+  ["pDate","pvDate"].forEach(i=>{ const el=$(i); if(el) el.value=TODAY; });
   await loadAll();
+  SEL=autoSelSmart(); selApply(); render();
   subscribe();
   go("home");
   if(location.hash==="#tv"){ go("dash"); openTV(); }
 }
 
-async function logout(){
-  if(!confirm("로그아웃 하겠나? · ¿Cerrar sesión?")) return;
+async function logout(ev){
+  const btn=ev&&ev.currentTarget;
+  if(!needConfirm("logout", btn, "로그아웃하려면 한 번 더 · Toca otra vez")) return;
   await sb.auth.signOut(); location.reload();
 }
 
@@ -689,13 +910,13 @@ async function logout(){
 async function loadAll(){
   const [pa,pl,rs,wk]=await Promise.all([
     sb.from("parts").select("*").eq("active",true),
-    sb.from("plans").select("*").eq("work_date",today()).order("line_id").order("seq"),
+    sb.from("plans").select("*").gte("work_date",YESTERDAY).order("work_date").order("line_id").order("seq"),
     sb.from("results").select("*"),
     sb.from("workers").select("*").order("created_at")
   ]);
   if(pa.error||pl.error||rs.error) return toast("데이터 조회 실패 · Error al cargar");
-  PARTS=(pa.data||[]).map(x=>({no:x.part_no,nm:x.name||x.part_no,c:x.color||"BK",sp:x.spec||""}));
-  PLANS=(pl.data||[]).map(x=>({id:x.id,seq:x.seq,line:x.line_id,shift:x.shift,no:x.part_no,qty:x.plan_qty,adhoc:x.is_adhoc}));
+  PARTS=(pa.data||[]).map(x=>({no:x.part_no,nm:x.name||x.part_no,c:x.color||"BK",sp:x.spec||"",vh:x.vehicle||""}));
+  PLANS=(pl.data||[]).map(x=>({id:x.id,date:x.work_date,seq:x.seq,line:x.line_id,shift:x.shift,no:x.part_no,qty:x.plan_qty,adhoc:x.is_adhoc}));
   STAFF=(wk.data||[]); WORKERS={}; STAFF.forEach(w=>WORKERS[w.id]=w.name);
   const nm=id=>WORKERS[id]||"—";
   const hm=t=>t?String(t).slice(0,5):"";
@@ -746,7 +967,7 @@ function render(){
 
 function renderLines(){
   $("lineGrid").innerHTML=["1","2","3","4","5"].map(L=>{
-    const ps=PLANS.filter(p=>p.line===L);
+    const ps=selPlans().filter(p=>p.line===L);
     const q=ps.reduce((s,p)=>s+p.qty,0);
     const a=ps.reduce((s,p)=>{const x=acc(p.id);return{i:s.i+x.i,o:s.o+x.o,n:s.n+x.n}},{i:0,o:0,n:0});
     const pct=q?Math.round(a.o/q*100):0;
@@ -764,7 +985,7 @@ function openLine(L){curLine=L;go("line");}
 
 function renderPlans(){
   $("lineTitle").innerHTML=`${curLine}번라인 계획<i class="es">Línea ${curLine} — en orden de registro</i>`;
-  const mine=PLANS.filter(p=>p.line===curLine).sort((a,b)=>a.seq-b.seq);
+  const mine=selPlans().filter(p=>p.line===curLine).sort((a,b)=>a.seq-b.seq);
   const el=$("planList");
   if(!mine.length){ el.innerHTML=`<div class="card empty"><strong>등록된 계획이 없다</strong>
       <span class="es">No hay plan registrado para esta línea</span></div>`; return; }
@@ -804,7 +1025,7 @@ function renderDetail(){
   $("detHead").innerHTML=`
     <div class="t"><span class="dot" style="background:${dotColor(P.c)}"></span>
       <h2>${p.no}</h2><span class="tag">${p.line}번라인 ${p.shift}조</span></div>
-    <div class="es" style="margin-top:4px">${P.nm} — 컬러 ${cname(P.c)}</div>
+    <div class="es" style="margin-top:4px">${P.vh?P.vh+" · ":""}${P.nm} — 컬러 ${cname(P.c)}</div>
     <div class="es" style="margin-top:3px;color:var(--or-d)">도장사양 · Especificación — ${P.sp||"미등록"}</div>
     <div style="margin-top:9px">${chip(k)}</div>
     <div class="meta">
@@ -872,14 +1093,20 @@ async function saveEntry(inputOnly){
   go("line");
 }
 
-let dFilter="all";
+let dFilter="all", dLine="all";
 function setFilter(f,btn){
   dFilter=f;
   [...$("dashSeg").children].forEach(b=>b.classList.toggle("on",b===btn));
   renderDash();
 }
+function setLine(L,btn){
+  dLine=L;
+  [...$("dashLine").children].forEach(b=>b.classList.toggle("on",b===btn));
+  renderDash();
+}
 function renderDash(){
-  const all=PLANS.slice();
+  const LINES=(dLine==="all")?["1","2","3","4","5"]:[dLine];
+  const all=selPlans().filter(p=>LINES.includes(p.line));
   const cnt={wait:0,run:0,done:0};
   all.forEach(p=>cnt[state(p.id)]++);
   $("dashSum").innerHTML=`
@@ -888,8 +1115,8 @@ function renderDash(){
     <div><b>${cnt.wait}</b><span>대기 · Sin iniciar</span></div>`;
 
   const order={run:0,done:1,wait:2};
-  $("dashList").innerHTML=["1","2","3","4","5"].map(L=>{
-    const ps=PLANS.filter(p=>p.line===L);
+  $("dashList").innerHTML=LINES.map(L=>{
+    const ps=selPlans().filter(p=>p.line===L);
     const q=ps.reduce((s,p)=>s+p.qty,0);
     const a=ps.reduce((s,p)=>{const x=acc(p.id);return{i:s.i+x.i,o:s.o+x.o,n:s.n+x.n}},{i:0,o:0,n:0});
     const pct=q?Math.round(a.o/q*100):0, lf=a.i?a.o/a.i*100:null;
@@ -928,21 +1155,144 @@ function renderDash(){
 function renderMaster(){
   $("masterList").innerHTML=[...PARTS].sort((a,b)=>a.no.localeCompare(b.no)).map(p=>
     `<div class="mrow"><span class="dot" style="background:${dotColor(p.c)}"></span>
+      <span class="vh">${p.vh||"-"}</span>
       <span class="no">${p.no}</span>
       <span class="nm">${p.nm}<i>컬러 ${cname(p.c)} — ${p.sp||"사양 미등록"}</i></span>
-      <button class="sbtn off" onclick="delPart('${p.no}')">삭제</button></div>`).join("");
+      <button class="sbtn off" onclick="delPart('${p.no}',this)">삭제</button></div>`).join("");
+}
+let planDelegated=false;
+function bindPlanList(){
+  if(planDelegated) return;
+  const box=$("planAdmin"); if(!box) return;
+  box.addEventListener("click", ev=>{
+    const b=ev.target.closest("button[data-act]"); if(!b) return;
+    ev.preventDefault(); ev.stopPropagation();
+    const id=b.dataset.id;
+    if(b.dataset.act==="edit") openPlanEdit(id); else delPlanRow(id, b);
+  });
+  planDelegated=true;
 }
 function renderPlanAdmin(){
-  $("planAdmin").innerHTML=PLANS.slice().sort((a,b)=>a.line.localeCompare(b.line)||a.seq-b.seq).map(p=>{
-    const P=part(p.no), a=acc(p.id);
-    return `<div class="mrow"><span class="tag">${p.line}L·${p.shift}·${String(p.seq).padStart(2,"0")}</span>
-      <span class="no">${p.no}</span>
-      <span class="nm">${P.nm}<i>계획 ${p.qty} · OK ${a.o}</i></span></div>`;
-  }).join("")||`<div class="empty"><strong>계획 없음</strong><span class="es">Sin planes</span></div>`;
+  bindPlanList();
+  const sel=$("pvDate").value||null;
+  let rows=PLANS.slice().sort((x,y)=>
+    x.date.localeCompare(y.date) || x.shift.localeCompare(y.shift) ||
+    x.line.localeCompare(y.line) || x.seq-y.seq);
+  if(sel) rows=rows.filter(p=>p.date===sel);
+  if(pvShiftSel!=="all") rows=rows.filter(p=>p.shift===pvShiftSel);
+  if(!rows.length){
+    const lbl=(sel?dLabel(sel)+" ":"")+(pvShiftSel==="all"?"":SH[pvShiftSel]+" ");
+    $("planAdmin").innerHTML=`<div class="empty"><strong>${lbl}계획이 없다</strong>
+      <span class="es">Sin planes</span></div>`; return;
+  }
+  let out="", key="";
+  rows.forEach(p=>{
+    const k=p.date+p.shift;
+    if(k!==key){ key=k;
+      const grp=rows.filter(x=>x.date===p.date&&x.shift===p.shift);
+      const q=grp.reduce((s,x)=>s+x.qty,0);
+      out+=`<div class="dsep">${dLabel(p.date)} · ${SH[p.shift]} — ${grp.length}품목 · 계획 ${q.toLocaleString()}</div>`;
+    }
+    const P=part(p.no), a=acc(p.id), r=res(p.id);
+    out+=`<div class="prow ${p.date<TODAY?"past":""}">
+      <span class="pdt ${p.shift==="B"?"n":""}">${p.line}L · ${p.shift==="A"?"주":"야"}</span>
+      <span class="pno">${p.no}</span>
+      <span class="pnm">${P.nm}</span>
+      <span class="pq">계획 <b>${p.qty.toLocaleString()}</b></span>
+      <span class="pq">${r?`투입 <b>${a.i}</b> · OK <b>${a.o}</b>`:"실적 없음"}</span>
+      <span class="pa">
+        <button class="sbtn" type="button" data-act="edit" data-id="${p.id}">수정 · Editar</button>
+        <button class="sbtn off" type="button" data-act="del" data-id="${p.id}">삭제 · Borrar</button>
+      </span>
+    </div>`;
+  });
+  $("planAdmin").innerHTML=out;
+}
+
+
+/* ═══ 두 번 눌러 확인 (확인창이 막히는 환경 대비) ═══ */
+let cfKey=null, cfTimer=null, cfBtn=null;
+function cfReset(){
+  if(cfBtn && cfBtn.dataset.orig){ cfBtn.innerHTML=cfBtn.dataset.orig; cfBtn.classList.remove("cf"); }
+  cfBtn=null; cfKey=null; clearTimeout(cfTimer);
+}
+function needConfirm(key, btn, msg){
+  if(!btn) return true;                       // 버튼을 못 받으면 그냥 진행
+  if(cfKey===key){ cfReset(); return true; }  // 두 번째 클릭 → 실행
+  cfReset();
+  cfKey=key; cfBtn=btn;
+  btn.dataset.orig=btn.innerHTML;
+  btn.innerHTML="한 번 더 · Confirmar";
+  btn.classList.add("cf");
+  if(msg) toast(msg);
+  cfTimer=setTimeout(cfReset,5000);
+  return false;
+}
+
+/* ═══ 계획 수정 · 삭제 ═══ */
+let peId=null, peBound=false;
+function bindPlanSheet(){
+  if(peBound) return;
+  const box=$("shPlan"); if(!box) return;
+  box.addEventListener("click", ev=>{
+    const b=ev.target.closest("button[data-act]"); if(!b) return;
+    ev.preventDefault(); ev.stopPropagation();
+    const a=b.dataset.act;
+    if(a==="save") savePlanEdit();
+    else if(a==="delete") delPlan(b);
+    else { cfReset(); closeAll(); }
+  });
+  peBound=true;
+}
+function openPlanEdit(id){
+  bindPlanSheet(); cfReset();
+  const p=PLANS.find(x=>String(x.id)===String(id));
+  if(!p) return toast("계획을 찾지 못했다 · Plan no encontrado: "+id);
+  peId=id;
+  const P=part(p.no), r=res(p.id);
+  $("peTitle").textContent=`${p.no} 계획 수정`;
+  $("peDate").value=p.date; $("peShift").value=p.shift; $("peLine").value=p.line; $("peQty").value=p.qty;
+  $("peInfo").innerHTML=`${P.nm} · 컬러 ${cname(P.c)}<br>${r?`실적 있음 — 투입 <b>${r.in}</b> · OK <b>${r.ok}</b> · NG <b>${r.ng}</b>`:"실적 없음 · Sin resultado"}`;
+  $("peErr").classList.add("hide");
+  open($("shPlan"));
+}
+async function savePlanEdit(){
+  const p=PLANS.find(x=>String(x.id)===String(peId));
+  if(!p) return toast("수정할 계획을 찾지 못했다 · Plan no encontrado");
+  const qty=+$("peQty").value||0, e=$("peErr"); e.classList.add("hide");
+  if(qty<=0){ e.textContent="계획수량을 확인해라 · Revisa la cantidad"; e.classList.remove("hide"); return; }
+  const {error}=await sb.from("plans").update({work_date:$("peDate").value||p.date,
+    shift:$("peShift").value, line_id:$("peLine").value, plan_qty:qty}).eq("id",peId);
+  if(error){ e.textContent="저장 실패 · Error: "+error.message; e.classList.remove("hide"); return; }
+  closeAll(); await loadAll(); toast("계획 수정 완료 · Plan actualizado");
+}
+async function delPlanRow(id, btn){
+  const p=PLANS.find(x=>String(x.id)===String(id));
+  if(!p) return toast("계획을 찾지 못했다 · Plan no encontrado");
+  const r=res(p.id);
+  if(!needConfirm("row:"+id, btn,
+     `${dLabel(p.date)} ${p.no} 삭제하려면 한 번 더 · Toca otra vez`+(r?" (실적도 삭제)":""))) return;
+  const {data,error}=await sb.from("plans").delete().eq("id",id).select();
+  if(error){ reportRed("planRep","삭제 실패 · Error<br>"+error.message); go("plan"); return; }
+  if(!data || !data.length){ reportRed("planRep","삭제되지 않았다 — 권한(RLS) 문제로 보인다.<br>No se eliminó — revisa las políticas RLS."); return; }
+  await loadAll(); toast("계획 삭제 · Plan eliminado");
+}
+async function delPlan(btn){
+  const p=PLANS.find(x=>String(x.id)===String(peId));
+  if(!p) return toast("삭제할 계획을 찾지 못했다 · Plan no encontrado");
+  const r=res(p.id);
+  if(!needConfirm("sheet", btn,
+     `삭제하려면 한 번 더 누른다 · Toca otra vez para eliminar`+(r?" (실적도 삭제)":""))) return;
+  const {data,error}=await sb.from("plans").delete().eq("id",peId).select();
+  const e=$("peErr");
+  if(error){ e.innerHTML="삭제 실패 · Error<br>"+error.message; e.classList.remove("hide"); return; }
+  if(!data || !data.length){ e.innerHTML="삭제되지 않았다 — 권한(RLS) 문제로 보인다.<br>No se eliminó — revisa RLS."; e.classList.remove("hide"); return; }
+  closeAll(); await loadAll(); toast("계획 삭제 · Plan eliminado");
 }
 
 /* ═══ 작업자 관리 ═══ */
 function renderStaff(){
+  const bt=$("buildTag"); if(bt) bt.textContent=BUILD;
   const wait=STAFF.filter(w=>!w.approved), ok=STAFF.filter(w=>w.approved);
   $("staffWait").innerHTML = wait.length ? wait.map(w=>`
     <div class="srow"><div class="av">${(w.name||"?").trim()[0]}</div>
@@ -961,7 +1311,7 @@ function renderStaff(){
         <button class="sbtn" onclick="setRole('${w.id}','${adm?"worker":"admin"}')" ${me?"disabled":""}>
           ${adm?"관리자 해제":"관리자 지정"}</button>
         <button class="sbtn" onclick="approve('${w.id}',false)" ${me?"disabled":""}>차단</button>
-        <button class="sbtn off" onclick="delStaff('${w.id}','${(w.name||"").replace(/'/g,"")}')" ${me?"disabled":""}>삭제</button>
+        <button class="sbtn off" onclick="delStaff('${w.id}','${(w.name||"").replace(/'/g,"")}',this)" ${me?"disabled":""}>삭제</button>
       </div></div>`;
   }).join("") : `<div class="empty"><strong>등록된 작업자 없음</strong><span class="es">Sin personal registrado</span></div>`;
 }
@@ -978,15 +1328,15 @@ async function setRole(id,role){
   renderStaff(); toast(role==="admin"?"관리자로 지정 · Ahora es admin":"작업자로 변경 · Ahora es operador");
 }
 
-async function delStaff(id,name){
+async function delStaff(id,name,btn){
   if(id===USER.id) return toast("본인 계정은 삭제할 수 없다 · No puedes eliminar tu cuenta");
-  if(!confirm(`${name} 계정을 삭제하겠나?\n로그인 자체를 막으려면 Supabase 대시보드에서 사용자도 지워야 한다.\n¿Eliminar la cuenta de ${name}?`)) return;
+  if(!needConfirm("staff:"+id, btn, `${name} 삭제하려면 한 번 더 · Toca otra vez`)) return;
   const {error}=await sb.from("workers").delete().eq("id",id);
   if(error) return toast("삭제 실패 · Error: "+error.message);
   STAFF=STAFF.filter(w=>w.id!==id); renderStaff(); toast(`${name} 삭제 · Eliminado`);
 }
-async function delPart(no){
-  if(!confirm(`품번 ${no} 을(를) 삭제하겠나? · ¿Eliminar la parte ${no}?`)) return;
+async function delPart(no, btn){
+  if(!needConfirm("part:"+no, btn, `${no} 삭제하려면 한 번 더 · Toca otra vez`)) return;
   const {error}=await sb.from("parts").delete().eq("part_no",no);
   if(error){
     const {error:e2}=await sb.from("parts").update({active:false}).eq("part_no",no);
@@ -1016,12 +1366,17 @@ function parseCSV(t){
   if(cur!==""||row.length){row.push(cur);out.push(row);}
   return out.filter(r=>r.some(c=>c.trim()!==""));
 }
+function reportRed(el,msg){
+  const e=$(el); if(!e) return;
+  e.innerHTML=msg; e.classList.remove("hide");
+  e.style.background="var(--ng-s)"; e.style.color="var(--ng)";
+}
 function report(el,lines){ const e=$(el); e.innerHTML=lines.join("<br>"); e.classList.remove("hide"); }
 
 function tplPart(){
-  dl("마스터_양식.csv",[["품번 / Part No","품명 / Description","컬러 / Color","도장사양 / Spec"],
-    ["A-1023","Door clip","BK","1C1B mate"],
-    ["B-3302","Nozzle ring","NH-731P","2C1B semi-gloss"]]);
+  dl("마스터_양식.csv",[["차종 / Modelo","품번 / Part No","품명 / Description","컬러 / Color","도장사양 / Spec"],
+    ["CN7","A-1023","Door clip","BK","1C1B mate"],
+    ["SU2","B-3302","Nozzle ring","NH-731P","2C1B semi-gloss"]]);
   toast("양식 내려받기 · Plantilla descargada");
 }
 function impPart(inp){
@@ -1029,13 +1384,13 @@ function impPart(inp){
   const rd=new FileReader();
   rd.onload=async()=>{
     let rows=parseCSV(rd.result);
-    if(rows.length && /품번|part/i.test(rows[0][0]||"")) rows=rows.slice(1);
+    if(rows.length && /차종|품번|modelo|part/i.test(rows[0][0]||"")) rows=rows.slice(1);
     const payload=[]; const err=[];
     rows.forEach((r,k)=>{
-      const no=(r[0]||"").trim().toUpperCase(), c=(r[2]||"").trim().toUpperCase();
+      const no=(r[1]||"").trim().toUpperCase(), c=(r[3]||"").trim().toUpperCase();
       if(!no){err.push(`${k+2}행 품번 없음`);return;}
-      payload.push({part_no:no,name:(r[1]||"").trim()||no,
-                    color:c||null,spec:(r[3]||"").trim()||null,active:true});
+      payload.push({vehicle:(r[0]||"").trim().toUpperCase()||null,part_no:no,name:(r[2]||"").trim()||no,
+                    color:c||null,spec:(r[4]||"").trim()||null,active:true});
     });
     inp.value="";
     if(!payload.length) return report("partRep",[`등록할 행이 없다 · Sin filas válidas`,
@@ -1051,7 +1406,9 @@ function impPart(inp){
 }
 
 function tplPlan(){
-  dl("계획_양식.csv",[["라인","품번","계획수량"],["1","A-1023","600"],["2","B-3302","350"]]);
+  const d=$("pDate").value||TODAY;
+  dl("계획_양식.csv",[["일자 / Fecha","근무조 / Turno","라인 / Línea","품번 / Parte","계획수량 / Cantidad"],
+    [d,"주","1","A-1023","600"],[d,"야","2","B-3302","350"]]);
   toast("양식 내려받기 · Plantilla descargada");
 }
 function impPlan(inp){
@@ -1059,18 +1416,22 @@ function impPlan(inp){
   const rd=new FileReader();
   rd.onload=async()=>{
     let rows=parseCSV(rd.result);
-    if(rows.length && /라인|line/i.test(rows[0][0]||"")) rows=rows.slice(1);
-    const seqOf={}; ["1","2","3","4","5"].forEach(L=>seqOf[L]=PLANS.filter(p=>p.line===L).length);
-    const payload=[]; const err=[]; const sh=$("pShift").value;
+    if(rows.length && /일자|날짜|fecha|date/i.test(rows[0][0]||"")) rows=rows.slice(1);
+    const seqOf={}; PLANS.forEach(p=>{const k=p.date+p.shift+p.line; seqOf[k]=Math.max(seqOf[k]||0,p.seq);});
+    const payload=[]; const err=[];
     rows.forEach((r,k)=>{
-      const L=(r[0]||"").trim().replace(/[^0-9]/g,"");
-      const no=(r[1]||"").trim().toUpperCase();
-      const qty=parseInt((r[2]||"").replace(/[^0-9]/g,""),10);
+      const d=parseDate(r[0]), sh=parseShift(r[1]);
+      const L=(r[2]||"").trim().replace(/[^0-9]/g,"");
+      const no=(r[3]||"").trim().toUpperCase();
+      const qty=parseInt((r[4]||"").replace(/[^0-9]/g,""),10);
+      if(!d){err.push(`${k+2}행 일자 오류 (${r[0]||"공백"})`);return;}
+      if(!sh){err.push(`${k+2}행 근무조 오류 (${r[1]||"공백"})`);return;}
       if(!["1","2","3","4","5"].includes(L)){err.push(`${k+2}행 라인 오류`);return;}
       if(!PARTS.some(p=>p.no===no)){err.push(`${k+2}행 마스터에 없는 품번 (${no||"공백"})`);return;}
       if(!qty||qty<=0){err.push(`${k+2}행 수량 오류`);return;}
-      payload.push({work_date:today(),line_id:L,shift:sh,part_no:no,plan_qty:qty,
-                    seq:++seqOf[L],is_adhoc:false,created_by:USER.id});
+      const key=d+sh+L; seqOf[key]=(seqOf[key]||0)+1;
+      payload.push({work_date:d,line_id:L,shift:sh,part_no:no,plan_qty:qty,
+                    seq:seqOf[key],is_adhoc:false,created_by:USER.id});
     });
     inp.value="";
     if(!payload.length) return report("planRep",[`등록할 행이 없다 · Sin filas válidas`,
@@ -1078,7 +1439,8 @@ function impPlan(inp){
     const {error}=await sb.from("plans").insert(payload);
     if(error) return report("planRep",[`업로드 실패 · Error: ${error.message}`]);
     await loadAll();
-    report("planRep",[`등록 <b>${payload.length}건</b> · Planes cargados`,
+    const days=[...new Set(payload.map(x=>x.work_date))].sort();
+    report("planRep",[`등록 <b>${payload.length}건</b> · ${days.map(dLabel).join(", ")}`,
       err.length?`오류 ${err.length}건 — ${err.slice(0,3).join(" / ")}${err.length>3?" …":""}`:""].filter(Boolean));
     toast(`계획 ${payload.length}건 등록 · ${payload.length} planes`);
   };
@@ -1093,7 +1455,7 @@ function openSearch(m){
 }
 function renderSearch(){
   const q=$("sQ").value.trim().toUpperCase();
-  const rows=PARTS.filter(p=>p.no.toUpperCase().includes(q)||p.nm.toUpperCase().includes(q))
+  const rows=PARTS.filter(p=>p.no.toUpperCase().includes(q)||p.nm.toUpperCase().includes(q)||(p.vh||"").toUpperCase().includes(q))
                   .sort((a,b)=>a.no.localeCompare(b.no));
   if(!rows.length){ $("sList").innerHTML=`<div class="empty"><strong>검색 결과 없음</strong>
       <span class="es">Sin resultados — revisa el maestro</span></div>`; return; }
@@ -1105,7 +1467,7 @@ function renderSearch(){
     out+=`<div class="item" onclick="pick('${p.no}')">
       <span class="dot" style="background:${dotColor(p.c)}"></span>
       <span class="no">${hi}</span>
-      <span class="nm">${p.nm}<i>${cname(p.c)}${p.sp?" · "+p.sp:""}</i></span></div>`;
+      <span class="nm">${p.vh?p.vh+" · ":""}${p.nm}<i>${cname(p.c)}${p.sp?" · "+p.sp:""}</i></span></div>`;
   });
   $("sList").innerHTML=out;
 }
@@ -1115,9 +1477,9 @@ async function pick(no){
     $("pPart").innerHTML=`${no} <i class="es">${P.nm}</i>`; closeAll(); return;
   }
   closeAll();
-  const seqN=PLANS.filter(p=>p.line===curLine).length+1;
-  const lineShift=(PLANS.filter(p=>p.line===curLine).slice(-1)[0]||{}).shift||"A";
-  const {data,error}=await sb.from("plans").insert({work_date:today(),line_id:curLine,shift:lineShift,
+  const seqN=selPlans().filter(p=>p.line===curLine).length+1;
+  const lineShift=(selPlans().filter(p=>p.line===curLine).slice(-1)[0]||{}).shift||"A";
+  const {data,error}=await sb.from("plans").insert({work_date:TODAY,line_id:curLine,shift:lineShift,
     part_no:no,plan_qty:0,seq:seqN,is_adhoc:true,created_by:USER.id}).select().single();
   if(error) return toast("등록 실패 · Error: "+error.message);
   await loadAll();
@@ -1127,21 +1489,24 @@ async function pick(no){
 
 /* ADMIN */
 async function addPlan(){
-  const no=$("pPart").dataset.no, qty=+$("pQty").value||0, L=$("pLine").value;
+  const no=$("pPart").dataset.no, qty=+$("pQty").value||0;
+  const L=$("pLine").value, sh=$("pShift").value, d=$("pDate").value||TODAY;
   if(!no||qty<=0) return toast("품번과 계획수량을 확인해라 · Revisa parte y cantidad");
-  const {error}=await sb.from("plans").insert({work_date:today(),line_id:L,shift:$("pShift").value,
-    part_no:no,plan_qty:qty,seq:PLANS.filter(p=>p.line===L).length+1,is_adhoc:false,created_by:USER.id});
+  const seq=PLANS.filter(p=>p.date===d&&p.line===L&&p.shift===sh).length+1;
+  const {error}=await sb.from("plans").insert({work_date:d,line_id:L,shift:sh,
+    part_no:no,plan_qty:qty,seq,is_adhoc:false,created_by:USER.id});
   if(error) return toast("실패 · Error: "+error.message);
-  $("pQty").value=""; await loadAll(); toast("계획 등록 완료 · Plan guardado");
+  $("pQty").value=""; await loadAll(); toast(`${dLabel(d)} ${SH[sh]} 계획 등록 · Plan guardado`);
 }
 async function addPart(){
   const no=$("mNo").value.trim().toUpperCase();
   if(!no) return toast("품번을 입력해라 · Ingresa el número de parte");
   if(PARTS.some(p=>p.no===no)) return toast("이미 등록된 품번 · Ya existe");
-  const {error}=await sb.from("parts").insert({part_no:no,name:$("mNm").value.trim()||no,
+  const {error}=await sb.from("parts").insert({vehicle:$("mVh").value.trim().toUpperCase()||null,
+    part_no:no,name:$("mNm").value.trim()||no,
     color:$("mCol").value.trim().toUpperCase()||null,spec:$("mSp").value.trim()||null});
   if(error) return toast("실패 · Error: "+error.message);
-  ["mNo","mNm","mSp"].forEach(i=>$(i).value=""); await loadAll();
+  ["mVh","mNo","mNm","mSp"].forEach(i=>$(i).value=""); await loadAll();
   toast("마스터 추가 완료 · Agregado al maestro");
 }
 
@@ -1151,8 +1516,9 @@ function openTV(){
   $("tv").classList.remove("hide");
   document.body.style.overflow="hidden";
   if(location.hash!=="#tv") history.replaceState(null,"","#tv");
-  try{ tvThemeInit(); }catch(e){}
+  try{ tvThemeInit(); tvSlideInit(); }catch(e){}
   renderTV();
+  startSlide();
   tvTimer=setInterval(()=>loadAll(),60000);              // 1분마다 서버에서 다시 읽는다
   tvClockTimer=setInterval(()=>{$("tvClock").textContent=now();},10000);
   const el=document.documentElement;
@@ -1175,13 +1541,14 @@ function closeTV(){
   history.replaceState(null,"",location.pathname);
   clearInterval(tvTimer); tvTimer=null;
   clearInterval(tvClockTimer); tvClockTimer=null;
+  clearInterval(slideTimer); slideTimer=null;
   if(document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(()=>{});
 }
 function renderTV(){
   $("tvClock").textContent=now();
   $("tvSync").textContent=`갱신 ${now()} · Actualizado`;
   const lineData=["1","2","3","4","5"].map(L=>{
-    const ps=PLANS.filter(p=>p.line===L);
+    const ps=tvPlans().filter(p=>p.line===L);
     const q=ps.reduce((s,p)=>s+p.qty,0);
     const a=ps.reduce((s,p)=>{const x=acc(p.id);return{i:s.i+x.i,o:s.o+x.o,n:s.n+x.n}},{i:0,o:0,n:0});
     const running=ps.filter(p=>state(p.id)==="run");
@@ -1239,29 +1606,75 @@ function renderTV(){
         <span>직행율 <b>${d.f===null?"—":d.f.toFixed(1)+"%"}</b></span></div>
       <div class="tvitems ${two?"two":""}">${body}</div>
     </div>`;
-  }).join("");
+  });
 
   const Q=lineData.reduce((s,d)=>s+d.q,0);
   const A=lineData.reduce((s,d)=>({i:s.i+d.a.i,o:s.o+d.a.o,n:s.n+d.a.n}),{i:0,o:0,n:0});
   const P=Q?Math.round(A.o/Q*100):0, F=A.i?A.o/A.i*100:null;
-  const runN=PLANS.filter(p=>state(p.id)==="run").length;
-  const doneN=PLANS.filter(p=>state(p.id)==="done").length;
+  const runN=tvPlans().filter(p=>state(p.id)==="run").length;
+  const doneN=tvPlans().filter(p=>state(p.id)==="done").length;
   const mini=lineData.map(d=>`<div class="tvmr"><span class="l">${d.L}</span>
       <span class="bar"><i style="width:${Math.min(100,d.pct)}%"></i></span>
       <span class="v">${d.pct}%</span></div>`).join("");
 
-  $("tvGrid").innerHTML = tiles + `<div class="tvt tot">
+  const totalTile = `<div class="tvt tot">
     <div class="tvth"><span class="tvln">전체 진도율<i>Avance total</i></span>
       <span class="tvchip run"><i class="ldot"></i>투입중 ${runN} · 종료 ${doneN}</span></div>
     <div class="tvrow"><span class="tvbig ${P>=100?'g':''}">${P}<small>%</small></span>
       <span class="tvratio"><b>${A.o.toLocaleString()}</b> / ${Q.toLocaleString()}
-        <i>OK / 계획 · Plan — ${PLANS.length}품목</i></span></div>
+        <i>OK / 계획 · Plan — ${tvPlans().length}품목</i></span></div>
     <div class="tvb"><i class="${P>=100?'g':''}" style="width:${Math.min(100,P)}%"></i></div>
     <div class="tvn"><span>투입 <b>${A.i.toLocaleString()}</b></span>
       <span class="r">NG <b>${A.n}</b></span>
       <span>직행율 <b>${F===null?"—":F.toFixed(1)+"%"}</b></span></div>
     <div class="tvmini">${mini}</div>
   </div>`;
+  TILES = tiles.concat([totalTile]);
+  paintTV();
+}
+
+/* ── 6분할 / 전체화면 순환 전환 ── */
+let TILES=[], tvSlide=false, slideIdx=0, slideTimer=null;
+const SLIDE_MS = 10000;                      // 10초마다 다음 화면
+
+function paintTV(){
+  const g=$("tvGrid"), prog=$("tvProg"), dots=$("tvDots");
+  if(!TILES.length) return;
+  if(tvSlide){
+    if(slideIdx>=TILES.length) slideIdx=0;
+    g.className="tvgrid solo";
+    g.innerHTML=TILES[slideIdx];
+    dots.classList.remove("hide");
+    dots.innerHTML=TILES.map((_,i)=>`<span class="${i===slideIdx?"on":""}" onclick="slideTo(${i})"></span>`).join("");
+    prog.classList.remove("hide");
+    prog.classList.remove("go"); void prog.offsetWidth;      // 애니메이션 재시작
+    prog.style.setProperty("--d",SLIDE_MS+"ms");
+    prog.querySelector("i").style.animationDuration=SLIDE_MS+"ms";
+    prog.classList.add("go");
+  }else{
+    g.className="tvgrid";
+    g.innerHTML=TILES.join("");
+    dots.classList.add("hide"); prog.classList.add("hide"); prog.classList.remove("go");
+  }
+}
+function slideTo(i){
+  slideIdx=i; paintTV(); startSlide();
+}
+function startSlide(){
+  clearInterval(slideTimer);
+  if(!tvSlide) return;
+  slideTimer=setInterval(()=>{ slideIdx=(slideIdx+1)%TILES.length; paintTV(); }, SLIDE_MS);
+}
+function tvSlideToggle(){
+  tvSlide=!tvSlide; slideIdx=0;
+  const b=$("tvSlideBtn"); if(b) b.textContent = tvSlide ? "6분할 · Mosaico" : "순환 · Rotar";
+  try{ localStorage.setItem("tvSlide", tvSlide?"1":"0"); }catch(e){}
+  paintTV(); startSlide();
+}
+function tvSlideInit(){
+  try{ tvSlide = localStorage.getItem("tvSlide")==="1"; }catch(e){ tvSlide=false; }
+  const b=$("tvSlideBtn"); if(b) b.textContent = tvSlide ? "6분할 · Mosaico" : "순환 · Rotar";
+  slideIdx=0;
 }
 window.addEventListener("keydown",e=>{ if(e.key==="Escape" && tvTimer) closeTV(); });
 
