@@ -1,12 +1,13 @@
 /* 도장 실적 앱 · 서비스 워커
    앱 화면(셸)만 캐시한다. 실적 데이터는 항상 서버에서 가져온다.
    화면을 고칠 때마다 아래 VERSION 을 올리면 사용자 기기에 자동 반영된다. */
-const VERSION = "v1";
+const VERSION = "v2";
 const CACHE = `paint-shell-${VERSION}`;
 
 const SHELL = [
   "./",
   "./index.html",
+  "./supabase.js",
   "./manifest.webmanifest",
   "./icon-192.png",
   "./icon-512.png",
@@ -56,12 +57,15 @@ self.addEventListener("fetch", e => {
 
   // 나머지 정적 파일은 캐시 우선
   e.respondWith(
-    caches.match(req).then(hit => hit || fetch(req).then(res => {
-      if (res.ok && url.origin === location.origin) {
-        const copy = res.clone();
-        caches.open(CACHE).then(c => c.put(req, copy));
-      }
-      return res;
-    }).catch(() => hit))
+    caches.match(req).then(hit => {
+      if (hit) return hit;
+      return fetch(req).then(res => {
+        if (res.ok && url.origin === location.origin) {
+          const copy = res.clone();
+          caches.open(CACHE).then(c => c.put(req, copy));
+        }
+        return res;
+      });
+    })
   );
 });
