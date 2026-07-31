@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>도장 실적 · Resultado de pintura</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{
+  --ink:#16181C; --ink2:#5A6068; --ink3:#949AA2;
+  --bg:#EFF1F3; --card:#FFFFFF; --line:#E2E5E9; --line2:#D3D8DE;
+  --or:#ED6F00; --or-d:#B85600; --or-s:#FFF3E8;
+  --ok:#17795E; --ok-s:#E8F4F0;
+  --ng:#C4342B; --ng-s:#FCECEA;
+  --wr:#9A6A00; --wr-s:#FFF6E0;
+  --r:14px;
+  --font:"Pretendard","Pretendard Variable",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5;
+  letter-spacing:-.01em;padding-bottom:78px}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+.es{display:block;font-size:11.5px;color:var(--ink3);letter-spacing:0;font-weight:400;line-height:1.3;margin-top:1px}
+.wrap{max-width:520px;margin:0 auto;padding:0 14px}
+.hide{display:none !important}
+
+.bar{position:sticky;top:0;z-index:40;background:var(--card);border-bottom:1px solid var(--line);
+  padding:calc(env(safe-area-inset-top) + 10px) 0 10px}
+.bar .wrap{display:flex;align-items:center;gap:10px}
+.mark{width:30px;height:30px;border-radius:8px;background:var(--or);display:grid;place-items:center;
+  color:#fff;font-weight:700;font-size:12px;letter-spacing:-.03em;flex:none}
+.back{width:30px;height:30px;border-radius:8px;border:1px solid var(--line2);background:var(--card);
+  display:grid;place-items:center;cursor:pointer;flex:none;padding:0}
+.back:active{background:var(--bg)}
+.bar h1{font-size:15px;font-weight:600;margin:0;flex:1;letter-spacing:-.02em;min-width:0}
+.bar h1 .es{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who{font-size:11.5px;color:var(--ink2);text-align:right;line-height:1.35;border-left:1px solid var(--line);padding-left:10px}
+.who b{display:block;font-size:12.5px;color:var(--ink);font-weight:600}
+
+.sec{margin:18px 0 8px}
+.sec h2{font-size:13px;font-weight:600;margin:0;letter-spacing:-.01em}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.pad{padding:14px}
+.btn{width:100%;border:0;border-radius:11px;background:var(--or);color:#fff;font-weight:600;
+  padding:14px;cursor:pointer;line-height:1.25;transition:background .15s}
+.btn:active{background:var(--or-d)}
+.btn.ghost{background:var(--card);color:var(--ink);border:1px solid var(--line2)}
+.btn.ghost:active{background:var(--bg)}
+.btn.sm{padding:10px;font-size:13px;border-radius:10px}
+.btn .es{color:rgba(255,255,255,.75)}
+.btn.ghost .es{color:var(--ink3)}
+label.f{display:block;margin-bottom:12px}
+label.f > span{font-size:12.5px;font-weight:600;display:block;margin-bottom:5px}
+input.i,select.i,textarea.i{width:100%;padding:12px;border:1px solid var(--line2);border-radius:10px;background:var(--card);outline:none}
+input.i:focus,select.i:focus,textarea.i:focus{border-color:var(--or);box-shadow:0 0 0 3px var(--or-s)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.note{font-size:12px;color:var(--ink2);line-height:1.5}
+.err{background:var(--ng-s);color:var(--ng);font-size:12.5px;padding:10px;border-radius:9px;margin-bottom:12px}
+.okbox{background:var(--ok-s);color:var(--ok);font-size:12.5px;padding:10px;border-radius:9px;margin-top:10px;line-height:1.55}
+
+#auth .wrap{padding-top:34px;max-width:420px}
+.hero{margin-bottom:22px}
+.hero .mark{width:44px;height:44px;border-radius:12px;font-size:16px;margin-bottom:14px}
+.hero h2{font-size:23px;font-weight:700;margin:0;letter-spacing:-.03em}
+.hero .es{font-size:13px;margin-top:4px}
+.seg{display:flex;background:var(--bg);border-radius:10px;padding:3px;margin-bottom:16px}
+.seg button{flex:1;border:0;background:none;padding:9px;border-radius:8px;font-weight:600;font-size:13px;color:var(--ink2);cursor:pointer}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.07)}
+
+.lgrid{display:grid;gap:10px}
+.lcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;cursor:pointer;
+  display:flex;align-items:center;gap:13px;transition:border-color .15s}
+.lcard:active{border-color:var(--or)}
+.lcard.idle .lno{background:var(--bg);color:var(--ink3)}
+.lno{width:44px;height:44px;border-radius:12px;background:var(--or-s);color:var(--or-d);flex:none;
+  display:grid;place-items:center;font-weight:700;font-size:19px;letter-spacing:-.03em}
+.lbody{flex:1;min-width:0}
+.lbody .t{font-weight:600;font-size:15px;letter-spacing:-.02em}
+.lbody .track{margin-top:7px}
+.lstat{text-align:right;flex:none}
+.lstat b{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.03em;display:block}
+.lstat span{font-size:10.5px;color:var(--ink3)}
+
+.dot{width:15px;height:15px;border-radius:50%;flex:none;border:1px solid rgba(0,0,0,.18)}
+.tag{font-size:10.5px;font-weight:600;padding:3px 7px;border-radius:6px;background:var(--bg);color:var(--ink2);flex:none;letter-spacing:0}
+.tag.live{background:var(--or-s);color:var(--or-d)}
+.tag.fin{background:var(--ok-s);color:var(--ok)}
+.tag.wait{background:var(--wr-s);color:var(--wr)}
+
+.plan{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:13px 14px;
+  margin-bottom:10px;cursor:pointer;transition:border-color .15s;display:flex;gap:12px}
+.plan:active{border-color:var(--or)}
+.plan.done{opacity:.6}
+.seqn{font-size:12px;font-weight:700;color:var(--ink3);font-variant-numeric:tabular-nums;padding-top:2px;flex:none;width:18px}
+.pbody{flex:1;min-width:0}
+.ph{display:flex;align-items:flex-start;gap:9px;margin-bottom:2px}
+.pn{font-weight:700;font-size:15.5px;letter-spacing:-.02em;flex:1}
+.pn .es{font-weight:400;margin-top:2px}
+.nums{display:flex;gap:13px;font-size:12px;color:var(--ink2);margin:8px 0;flex-wrap:wrap}
+.nums b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.track{height:9px;background:var(--bg);border-radius:5px;overflow:hidden}
+.fill{height:100%;background:var(--or);border-radius:5px;transition:width .5s cubic-bezier(.2,.8,.2,1);position:relative}
+.fill::after{content:"";position:absolute;right:0;top:0;bottom:0;width:5px;background:rgba(255,255,255,.45);border-radius:0 5px 5px 0}
+.fill.full{background:var(--ok)}
+.pct{display:flex;justify-content:space-between;font-size:11px;color:var(--ink3);margin-top:6px;font-variant-numeric:tabular-nums}
+.pct .bad{color:var(--ng);font-weight:600}
+
+.phead{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:14px}
+.phead .t{display:flex;align-items:center;gap:9px}
+.phead h2{font-size:20px;font-weight:700;margin:0;letter-spacing:-.03em;flex:1}
+.meta{display:flex;gap:8px;margin-top:12px}
+.mbox{flex:1;background:var(--bg);border-radius:10px;padding:9px;text-align:center}
+.mbox span{display:block;font-size:10.5px;color:var(--ink3);margin-bottom:2px}
+.mbox b{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.mbox.rest b{color:var(--or)}
+
+.qty{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.q{border:1px solid var(--line2);border-radius:11px;padding:9px 8px 8px;text-align:center}
+.q.ok{background:var(--ok-s);border-color:#CBE5DC}
+.q.ng{background:var(--ng-s);border-color:#F2D3CF}
+.q label{display:block;font-size:11px;font-weight:600;margin-bottom:4px;line-height:1.25}
+.q label .es{font-size:9.5px;margin-top:1px}
+.q input{width:100%;border:0;background:none;text-align:center;font-size:26px;font-weight:700;padding:2px 0;
+  outline:none;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.q.ok input{color:var(--ok)} .q.ng input{color:var(--ng)}
+.q input::-webkit-outer-spin-button,.q input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.fpr{display:flex;align-items:center;gap:12px;background:var(--bg);border-radius:11px;padding:11px 14px;margin-bottom:14px}
+.fpr .lb{flex:1;font-size:12.5px;font-weight:600}
+.fpr .vl{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.fpr .vl.g{color:var(--ok)} .fpr .vl.r{color:var(--ng)}
+.hint{font-size:11.5px;color:var(--ink3);margin:0 0 14px;line-height:1.45}
+.trail{background:var(--bg);border-radius:10px;padding:10px 11px;font-size:11.5px;color:var(--ink2);line-height:1.6;margin-bottom:14px}
+.trail b{color:var(--ink);font-weight:600}
+
+.srch{position:relative;margin-bottom:12px}
+.srch input{width:100%;padding:13px 13px 13px 38px;border:1px solid var(--line2);border-radius:11px;outline:none}
+.srch input:focus{border-color:var(--or);box-shadow:0 0 0 3px var(--or-s)}
+.srch svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);opacity:.4}
+.abc{font-size:10.5px;font-weight:700;color:var(--ink3);letter-spacing:.06em;padding:9px 2px 5px;position:sticky;top:0;background:var(--card)}
+.list{max-height:46vh;overflow-y:auto;margin:0 -2px}
+.item{display:flex;align-items:center;gap:10px;padding:11px 8px;border-radius:10px;cursor:pointer;border-bottom:1px solid var(--line)}
+.item:active{background:var(--bg)}
+.item .no{font-weight:700;font-size:14.5px;min-width:74px;font-variant-numeric:tabular-nums}
+.item .nm{flex:1;font-size:12.5px;color:var(--ink2);line-height:1.35}
+.item .nm i{font-style:normal;display:block;color:var(--ink3);font-size:11px}
+mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
+
+.dcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:13px 14px;margin-bottom:10px}
+.dh{display:flex;align-items:baseline;gap:8px;margin-bottom:9px}
+.dh h3{font-size:15px;font-weight:700;margin:0;letter-spacing:-.02em}
+.dh .s{font-size:11px;color:var(--ink3);flex:1}
+.dh .p{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.kpi{display:flex;margin-top:10px;border-top:1px solid var(--line);padding-top:9px}
+.kpi div{flex:1;text-align:center;border-right:1px solid var(--line)}
+.kpi div:last-child{border:0}
+.kpi span{display:block;font-size:10px;color:var(--ink3)}
+.kpi b{font-size:14.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.dlist{margin-top:10px;border-top:1px solid var(--line);padding-top:4px}
+.ditem{padding:9px 0;border-bottom:1px solid var(--line)}
+.ditem:last-child{border-bottom:0;padding-bottom:2px}
+.dtop{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+.dtop .dot{width:11px;height:11px}
+.dno{font-weight:700;font-size:13px;flex:none}
+.dnm{font-size:11px;color:var(--ink3);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dpct{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;flex:none}
+.dpct.g{color:var(--ok)}
+.dbar{height:5px;background:var(--bg);border-radius:3px;overflow:hidden;margin-bottom:6px}
+.dbar i{display:block;height:100%;border-radius:3px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.dnum{display:flex;gap:11px;font-size:11px;color:var(--ink3);flex-wrap:wrap;font-variant-numeric:tabular-nums}
+.dnum b{color:var(--ink);font-weight:600}
+.dnum .g{color:var(--ok)} .dnum .r{color:var(--ng)}
+.dnum .bad b{color:var(--ng)}
+.dsp{font-size:10.5px;color:var(--or-d);margin-top:4px}
+.dnone{font-size:12px;color:var(--ink3);padding:12px 0 4px;text-align:center}
+
+.mrow{display:flex;align-items:center;gap:10px;padding:11px 13px;border-bottom:1px solid var(--line)}
+.mrow:last-child{border:0}
+.mrow .no{font-weight:700;font-size:14px;min-width:74px}
+.mrow .nm{flex:1;font-size:12.5px;color:var(--ink2);line-height:1.35}
+.mrow .nm i{font-style:normal;display:block;color:var(--ink3);font-size:11px}
+
+.bulk{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.srow{display:flex;align-items:center;gap:10px;padding:12px 13px;border-bottom:1px solid var(--line)}
+.srow:last-child{border:0}
+.srow .av{width:34px;height:34px;border-radius:50%;background:var(--bg);color:var(--ink2);flex:none;
+  display:grid;place-items:center;font-weight:700;font-size:13px}
+.srow .av.adm{background:var(--or-s);color:var(--or-d)}
+.srow .in{flex:1;min-width:0}
+.srow .nm{font-weight:600;font-size:14px;letter-spacing:-.01em}
+.srow .sub{font-size:11px;color:var(--ink3);margin-top:1px}
+.srow .ac{display:flex;gap:6px;flex:none}
+.sbtn{border:1px solid var(--line2);background:var(--card);border-radius:8px;padding:7px 10px;
+  font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap}
+.sbtn:active{background:var(--bg)}
+.sbtn.go{background:var(--or);border-color:var(--or);color:#fff}
+.sbtn.off{color:var(--ng);border-color:#F0CFCB}
+.sbtn:disabled{opacity:.4;cursor:not-allowed}
+.pact{flex:none;display:flex;align-items:center}
+.startb{border:1px solid var(--or);background:var(--or-s);color:var(--or-d);border-radius:10px;
+  padding:9px 10px;font-size:11.5px;font-weight:700;cursor:pointer;line-height:1.2;text-align:center;white-space:nowrap}
+.startb:active{background:var(--or);color:#fff}
+.startb i{font-style:normal;display:block;font-size:9.5px;font-weight:400;opacity:.75;margin-top:1px}
+.stime{text-align:center;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink2)}
+.stime span{display:block;font-size:9.5px;font-weight:400;color:var(--ink3);margin-top:1px}
+.st{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:6px;letter-spacing:0;flex:none}
+.st.wait{background:var(--bg);color:var(--ink3)}
+.st.run{background:var(--or-s);color:var(--or-d)}
+.st.done{background:var(--ok-s);color:var(--ok)}
+.ldot{width:6px;height:6px;border-radius:50%;background:var(--or);animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.sum{display:flex;gap:8px;margin-bottom:12px}
+.sum div{flex:1;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 8px;text-align:center}
+.sum b{display:block;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.03em;line-height:1.15}
+.sum span{font-size:10.5px;color:var(--ink3)}
+.sum .r b{color:var(--or)} .sum .d b{color:var(--ok)}
+.startbox{display:flex;align-items:center;gap:10px;background:var(--or-s);border:1px solid #F5D9BC;
+  border-radius:11px;padding:11px 13px;margin-bottom:14px}
+.startbox .tx{flex:1;font-size:12.5px;font-weight:600;color:var(--or-d)}
+.empty{text-align:center;padding:40px 20px;color:var(--ink3)}
+.empty strong{display:block;font-size:14px;color:var(--ink2);font-weight:600;margin-bottom:4px}
+
+.scrim{position:fixed;inset:0;background:rgba(10,12,15,.42);z-index:50;opacity:0;pointer-events:none;transition:opacity .22s}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:51;background:var(--card);border-radius:20px 20px 0 0;
+  max-height:93vh;overflow-y:auto;transform:translateY(101%);transition:transform .28s cubic-bezier(.2,.85,.25,1);
+  padding-bottom:calc(env(safe-area-inset-bottom) + 14px)}
+.sheet.on{transform:translateY(0)}
+.sheet > .in{max-width:520px;margin:0 auto;padding:0 16px}
+.grab{width:38px;height:4px;background:var(--line2);border-radius:2px;margin:9px auto 4px}
+.sh-h{padding:8px 0 14px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.sh-h h3{font-size:19px;font-weight:700;margin:0;letter-spacing:-.03em}
+
+.tabs{position:fixed;bottom:0;left:0;right:0;z-index:30;background:var(--card);border-top:1px solid var(--line);
+  display:flex;padding-bottom:env(safe-area-inset-bottom)}
+.tabs button{flex:1;border:0;background:none;padding:9px 2px 8px;cursor:pointer;color:var(--ink3);font-size:10.5px;font-weight:600;line-height:1.2}
+.tabs button svg{display:block;margin:0 auto 3px;stroke:currentColor;fill:none;stroke-width:1.8}
+.tabs button.on{color:var(--or)}
+
+/* ═══ TV 모드 ═══ */
+#tv{position:fixed;inset:0;z-index:70;background:#0C0E11;color:#F2F4F6;
+  display:flex;flex-direction:column;padding:clamp(8px,1.2vw,20px)}
+.tvbar-h{display:flex;align-items:center;gap:12px;padding:0 4px clamp(6px,.8vw,12px)}
+.tvbar-h .mk{width:clamp(24px,2vw,38px);height:clamp(24px,2vw,38px);border-radius:8px;background:var(--or);
+  display:grid;place-items:center;color:#fff;font-weight:700;font-size:clamp(10px,.9vw,15px)}
+.tvbar-h h2{margin:0;font-size:clamp(13px,1.4vw,26px);font-weight:700;letter-spacing:-.02em;flex:1}
+.tvbar-h h2 i{font-style:normal;font-weight:400;color:#7E868F;font-size:.72em;margin-left:8px}
+.tvclock{font-size:clamp(14px,1.6vw,30px);font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.tvx{border:1px solid #2B3037;background:#171A1F;color:#C9CFD6;border-radius:9px;
+  padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer}
+.tvx:active{background:#22262C}
+.tvgrid{flex:1;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);
+  gap:clamp(6px,.8vw,14px);min-height:0}
+@media (max-aspect-ratio:1/1){.tvgrid{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(3,1fr)}}
+.tvt{background:#15181D;border:1px solid #23272E;border-radius:clamp(10px,1vw,18px);
+  padding:clamp(9px,1vw,20px);display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.tvt.run{border-color:#5A3A12;background:linear-gradient(180deg,#1D1710 0%,#15181D 55%)}
+.tvt.tot{background:#12161B;border-color:#2A3038}
+.tvth{display:flex;align-items:center;gap:7px;margin-bottom:clamp(4px,.5vw,10px)}
+.tvln{font-size:clamp(14px,1.5vw,30px);font-weight:700;letter-spacing:-.03em}
+.tvln i{font-style:normal;font-weight:400;color:#7E868F;font-size:.6em;margin-left:5px}
+.tvchip{margin-left:auto;font-size:clamp(9px,.72vw,14px);font-weight:700;padding:3px 8px;border-radius:20px;
+  display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.tvchip.run{background:rgba(237,111,0,.16);color:#FFA451}
+.tvchip.done{background:rgba(23,121,94,.18);color:#5FD3AE}
+.tvchip.wait{background:#1D2128;color:#79818B}
+.tvchip .ldot{background:#FFA451}
+.tvpart{font-size:clamp(11px,1.05vw,21px);font-weight:600;color:#DCE1E6;line-height:1.3;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tvpart i{font-style:normal;color:#767E88;font-weight:400}
+.tvrow{display:flex;align-items:baseline;gap:clamp(6px,.8vw,16px);margin:clamp(3px,.4vw,8px) 0 clamp(4px,.5vw,10px)}
+.tvbig{font-size:clamp(26px,4.2vw,76px);font-weight:800;letter-spacing:-.05em;line-height:1;
+  font-variant-numeric:tabular-nums}
+.tvratio{font-size:clamp(10px,.95vw,19px);color:#79818B;font-variant-numeric:tabular-nums;line-height:1.25}
+.tvratio b{color:#E6EAEE;font-weight:700;font-size:1.15em}
+.tvratio i{font-style:normal;display:block;font-size:.72em;color:#5A626B;margin-top:1px}
+.tvitems{flex:1;min-height:0;display:flex;flex-direction:column;gap:clamp(2px,.28vw,6px);
+  margin-top:clamp(5px,.6vw,11px);border-top:1px solid #23272E;padding-top:clamp(5px,.6vw,11px);overflow:hidden}
+.tvi{display:flex;align-items:center;gap:clamp(4px,.5vw,10px);font-size:clamp(9px,.8vw,16px);
+  font-variant-numeric:tabular-nums;color:#9AA2AB}
+.tvi .mk{width:1em;text-align:center;flex:none}
+.tvi.run .mk{color:#FFA451} .tvi.done .mk{color:#5FD3AE} .tvi.wait .mk{color:#5A626B}
+.tvi .no{font-weight:700;color:#DCE1E6;flex:none;min-width:5.2em}
+.tvi .bar{flex:1;height:clamp(4px,.42vw,8px);background:#242930;border-radius:99px;overflow:hidden;min-width:18px}
+.tvi .bar i{display:block;height:100%;border-radius:99px;background:var(--or)}
+.tvi.done .bar i{background:#22A47F} .tvi.wait .bar i{background:#3A4149}
+.tvi .q{flex:none;min-width:5.8em;text-align:right}
+.tvi .q b{color:#E6EAEE;font-weight:700}
+.tvi .p{flex:none;min-width:2.9em;text-align:right;font-weight:700;color:#E6EAEE}
+.tvmore{font-size:clamp(8.5px,.7vw,14px);color:#5A626B;text-align:center;padding-top:2px}
+.tvbig small{font-size:.38em;font-weight:600;color:#7E868F;margin-left:3px;letter-spacing:0}
+.tvbig.g{color:#5FD3AE}
+.tvb{height:clamp(6px,.7vw,14px);background:#242930;border-radius:99px;overflow:hidden;margin-bottom:clamp(5px,.6vw,11px)}
+.tvb i{display:block;height:100%;border-radius:99px;background:var(--or);transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.tvb i.g{background:#22A47F}
+.tvn{display:flex;flex-wrap:wrap;gap:clamp(6px,.8vw,16px);font-size:clamp(9.5px,.82vw,16px);color:#79818B;
+  font-variant-numeric:tabular-nums}
+.tvn b{color:#E6EAEE;font-weight:700}
+.tvn .r b{color:#FF7B6E}
+.tvmini{margin-top:auto;display:grid;gap:clamp(3px,.35vw,7px)}
+.tvmr{display:flex;align-items:center;gap:7px;font-size:clamp(9px,.78vw,15px);color:#79818B;font-variant-numeric:tabular-nums}
+.tvmr .l{width:1.4em;font-weight:700;color:#B7BEC6;flex:none}
+.tvmr .bar{flex:1;height:clamp(4px,.45vw,9px);background:#242930;border-radius:99px;overflow:hidden}
+.tvmr .bar i{display:block;height:100%;background:var(--or);border-radius:99px}
+.tvmr .v{width:2.6em;text-align:right;color:#E6EAEE;font-weight:700;flex:none}
+.tvbtn{width:100%;border:1px solid var(--line2);background:var(--card);color:var(--ink);border-radius:11px;
+  padding:13px;font-weight:600;cursor:pointer;margin-bottom:12px;line-height:1.25}
+.tvbtn:active{background:var(--bg)}
+
+.toast{position:fixed;left:50%;bottom:92px;transform:translate(-50%,14px);z-index:60;background:var(--ink);color:#fff;
+  padding:11px 17px;border-radius:11px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;
+  transition:all .25s;box-shadow:0 6px 20px rgba(0,0,0,.2);max-width:88vw;text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+
+<section id="auth">
+  <div class="wrap">
+    <div class="hero">
+      <div class="mark">NKU</div><h2>도장 실적</h2>
+      <span class="es">Resultado de pintura · NIFCO KOREA USA</span>
+    </div>
+    <div class="seg">
+      <button id="tabIn" class="on" onclick="authTab('in')">로그인 · Entrar</button>
+      <button id="tabUp" onclick="authTab('up')">회원가입 · Registrarse</button>
+    </div>
+    <div class="card pad">
+      <div id="authErr" class="err hide"></div>
+      <label class="f"><span>사번<i class="es">Número de empleado</i></span>
+        <input class="i" id="aEmp" inputmode="numeric" placeholder="예 / ej. 10482"></label>
+      <div id="upOnly" class="hide">
+        <label class="f"><span>이름<i class="es">Nombre</i></span>
+          <input class="i" id="aName" placeholder="예 / ej. Juan Pérez"></label>
+        <label class="f"><span>근무조<i class="es">Turno</i></span>
+          <select class="i" id="aShift">
+            <option value="A">A조 주간 · Turno A / Día</option>
+            <option value="B">B조 야간 · Turno B / Noche</option></select></label>
+      </div>
+      <label class="f"><span>PIN 4자리<i class="es">PIN de 4 dígitos</i></span>
+        <input class="i" id="aPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••"></label>
+      <button class="btn" id="aGo" onclick="doAuth()">로그인<i class="es">Entrar</i></button>
+      <p class="note" id="upNote" style="margin:12px 0 0" hidden>가입 후 관리자 승인이 완료되면 실적을 입력할 수 있다.
+        <span class="es">Podrás registrar resultados una vez que el administrador apruebe tu cuenta.</span></p>
+    </div>
+  </div>
+</section>
+
+<div id="app" class="hide">
+  <header class="bar">
+    <div class="wrap">
+      <button class="back hide" id="btnBack" onclick="back()" aria-label="뒤로">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg></button>
+      <div class="mark" id="brand">NKU</div>
+      <h1 id="barTitle">라인 선택 <i class="es">Selecciona una línea</i></h1>
+      <div class="who"><b id="whoName">—</b><span id="whoMeta">—</span></div>
+    </div>
+  </header>
+
+  <section id="v-home" class="wrap">
+    <div class="sec"><h2>라인 선택 <span id="dToday" style="color:var(--ink3);font-weight:400"></span>
+      <i class="es">Toca la línea donde estás trabajando</i></h2></div>
+    <div class="lgrid" id="lineGrid" style="margin-bottom:24px"></div>
+  </section>
+
+  <section id="v-line" class="wrap hide">
+    <div class="sec"><h2 id="lineTitle">계획 목록<i class="es">Planes en orden de registro</i></h2></div>
+    <div id="planList"></div>
+    <button class="btn ghost" onclick="openSearch('adhoc')" style="margin:4px 0 24px">
+      + 계획에 없는 품번 입력<i class="es">Registrar un número sin plan</i></button>
+  </section>
+
+  <section id="v-detail" class="wrap hide">
+    <div class="phead" id="detHead"></div>
+    <div class="card pad" style="margin-bottom:24px">
+      <div id="eErr" class="err hide"></div>
+      <div id="eTrail" class="trail hide"></div>
+      <div id="stBox"></div>
+      <div class="qty">
+        <div class="q"><label>투입수량<i class="es">Ingresado</i></label>
+          <input id="fIn" type="number" inputmode="numeric" placeholder="0" oninput="calc()"></div>
+        <div class="q ok"><label>OK<i class="es">Conforme</i></label>
+          <input id="fOk" type="number" inputmode="numeric" placeholder="0" oninput="fromOk()"></div>
+        <div class="q ng"><label>NG<i class="es">No conforme</i></label>
+          <input id="fNg" type="number" inputmode="numeric" placeholder="0" oninput="fromNg()"></div>
+      </div>
+      <div class="fpr"><span class="lb">직행율<i class="es">Tasa de primera pasada</i></span>
+        <span class="vl" id="fFtt">—</span></div>
+      <label class="f"><span>코멘트 <span style="color:var(--ink3);font-weight:400">· 선택</span>
+        <i class="es">Comentario · opcional</i></span>
+        <textarea class="i" id="fCm" rows="2" placeholder="예 / ej. 이물 부착 · Contaminación"></textarea></label>
+      <button class="btn" onclick="saveEntry(false)" id="eSave">실적 저장<i class="es">Guardar resultado</i></button>
+      <button class="btn ghost" onclick="saveEntry(true)" id="eSaveIn" style="margin-top:8px">
+        투입만 저장 · 결과는 나중에<i class="es">Guardar solo el ingreso — resultado después</i></button>
+    </div>
+  </section>
+
+  <section id="v-plan" class="wrap hide">
+    <div class="sec"><h2>계획 일괄등록<i class="es">Carga masiva de planes</i></h2></div>
+    <div class="card pad" style="margin-bottom:14px">
+      <p class="note" style="margin:0 0 11px">양식은 <b>라인 · 품번 · 계획수량</b> 세 칸이다. 엑셀에서 채운 뒤 CSV로 저장해 올리면 된다.
+        <span class="es">Descarga la plantilla, llénala en Excel, guárdala como CSV y súbela.</span></p>
+      <div class="bulk">
+        <button class="btn ghost sm" onclick="tplPlan()">양식 내려받기<i class="es">Plantilla</i></button>
+        <button class="btn ghost sm" onclick="$('upPlan').click()">양식 업로드<i class="es">Subir CSV</i></button>
+      </div>
+      <input type="file" id="upPlan" accept=".csv,text/csv" class="hide" onchange="impPlan(this)">
+      <div id="planRep" class="okbox hide"></div>
+    </div>
+
+    <div class="sec"><h2>계획 개별등록<i class="es">Registrar un plan</i></h2></div>
+    <div class="card pad">
+      <div class="row2">
+        <label class="f"><span>라인<i class="es">Línea</i></span>
+          <select class="i" id="pLine">
+            <option value="1">1번라인</option><option value="2">2번라인</option>
+            <option value="3">3번라인</option><option value="4">4번라인</option>
+            <option value="5">5번라인</option></select></label>
+        <label class="f"><span>근무조<i class="es">Turno</i></span>
+          <select class="i" id="pShift"><option value="A">A조 주간</option><option value="B">B조 야간</option></select></label>
+      </div>
+      <label class="f"><span>품번<i class="es">Número de parte</i></span>
+        <button class="btn ghost" id="pPart" onclick="openSearch('plan')" style="text-align:left;padding:12px">
+          품번 선택 <i class="es">Seleccionar del maestro</i></button></label>
+      <label class="f"><span>계획수량<i class="es">Cantidad planeada</i></span>
+        <input class="i" id="pQty" type="number" inputmode="numeric" placeholder="0"></label>
+      <button class="btn" onclick="addPlan()">계획 등록<i class="es">Guardar plan</i></button>
+    </div>
+    <div class="sec"><h2>등록된 계획<i class="es">Planes registrados</i></h2></div>
+    <div class="card" id="planAdmin" style="margin-bottom:24px"></div>
+  </section>
+
+  <section id="v-dash" class="wrap hide">
+    <div class="sec"><h2>실시간 현황<i class="es">Estado en tiempo real</i></h2></div>
+    <button class="tvbtn" onclick="openTV()">TV 화면으로 보기<i class="es">Abrir vista de TV — 6 paneles</i></button>
+    <div class="sum" id="dashSum"></div>
+    <div class="seg" id="dashSeg">
+      <button class="on" onclick="setFilter('all',this)">전체 · Todo</button>
+      <button onclick="setFilter('run',this)">투입중 · En proceso</button>
+      <button onclick="setFilter('done',this)">종료 · Terminado</button>
+    </div>
+    <div id="dashList" style="margin-bottom:24px"></div>
+  </section>
+
+  <section id="v-master" class="wrap hide">
+    <div class="sec"><h2>마스터 일괄등록<i class="es">Carga masiva del maestro</i></h2></div>
+    <div class="card pad" style="margin-bottom:14px">
+      <p class="note" style="margin:0 0 11px">양식은 <b>품번 · 품명(한국어) · 품명(스페인어) · 컬러 · 도장사양</b> 다섯 칸이다. 컬러는 BK / SL / GY / WH.
+        <span class="es">Cinco columnas. El color debe ser BK, SL, GY o WH.</span></p>
+      <div class="bulk">
+        <button class="btn ghost sm" onclick="tplPart()">양식 내려받기<i class="es">Plantilla</i></button>
+        <button class="btn ghost sm" onclick="$('upPart').click()">양식 업로드<i class="es">Subir CSV</i></button>
+      </div>
+      <input type="file" id="upPart" accept=".csv,text/csv" class="hide" onchange="impPart(this)">
+      <div id="partRep" class="okbox hide"></div>
+    </div>
+
+    <div class="sec"><h2>마스터 개별등록<i class="es">Agregar una parte</i></h2></div>
+    <div class="card pad" style="margin-bottom:12px">
+      <label class="f"><span>품번<i class="es">Número de parte</i></span>
+        <input class="i" id="mNo" placeholder="A-1023"></label>
+      <div class="row2">
+        <label class="f"><span>품명 (한국어)<i class="es">Nombre en coreano</i></span>
+          <input class="i" id="mKr" placeholder="도어 클립"></label>
+        <label class="f"><span>품명 (스페인어)<i class="es">Nombre en español</i></span>
+          <input class="i" id="mEs" placeholder="Clip de puerta"></label>
+      </div>
+      <label class="f"><span>컬러<i class="es">Color</i></span>
+        <select class="i" id="mCol">
+          <option value="BK">BK 흑색 · Negro</option><option value="SL">SL 은색 · Plata</option>
+          <option value="GY">GY 회색 · Gris</option><option value="WH">WH 백색 · Blanco</option></select></label>
+      <label class="f"><span>도장사양<i class="es">Especificación de pintura</i></span>
+        <input class="i" id="mSp" placeholder="예 / ej. 2C1B 유광 · 2 capas brillante"></label>
+      <button class="btn" onclick="addPart()">마스터 추가<i class="es">Agregar al maestro</i></button>
+    </div>
+    <div class="card" id="masterList" style="margin-bottom:24px"></div>
+  </section>
+
+  <section id="v-staff" class="wrap hide">
+    <div class="sec"><h2>승인 대기<i class="es">Pendientes de aprobación</i></h2></div>
+    <div class="card" id="staffWait" style="margin-bottom:6px"></div>
+    <div class="sec"><h2>작업자 목록<i class="es">Lista de personal</i></h2></div>
+    <div class="card" id="staffList"></div>
+    <p class="note" style="margin:12px 2px 24px">데모 화면이라 승인·권한 변경은 이 브라우저에서만 반영된다.
+      <span class="es">Demo — los cambios no se guardan en el servidor.</span></p>
+  </section>
+
+  <nav class="tabs">
+    <button id="t-work" class="on" onclick="go('home')">
+      <svg viewBox="0 0 24 24" width="21" height="21"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9"/></svg>
+      실적 · Result.</button>
+    <button id="t-plan" onclick="go('plan')">
+      <svg viewBox="0 0 24 24" width="21" height="21"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      계획 · Plan</button>
+    <button id="t-dash" onclick="go('dash')">
+      <svg viewBox="0 0 24 24" width="21" height="21"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+      현황 · Estado</button>
+    <button id="t-master" onclick="go('master')">
+      <svg viewBox="0 0 24 24" width="21" height="21"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      마스터 · Maestro</button>
+    <button id="t-staff" onclick="go('staff')">
+      <svg viewBox="0 0 24 24" width="21" height="21"><circle cx="12" cy="8" r="3.4"/><path d="M5 20a7 7 0 0114 0"/></svg>
+      작업자 · Personal</button>
+  </nav>
+</div>
+
+<div class="scrim" id="scrim" onclick="closeAll()"></div>
+<div class="sheet" id="shSearch">
+  <div class="grab"></div>
+  <div class="in">
+    <div class="sh-h"><h3 id="sTitle">품번 선택</h3>
+      <div class="es">Busca por número — la lista se ordena alfabéticamente</div></div>
+    <div class="srch">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="sQ" placeholder="품번 입력 · Escribe el número" oninput="renderSearch()" autocomplete="off">
+    </div>
+    <div class="list" id="sList"></div>
+    <button class="btn ghost" onclick="closeAll()" style="margin:12px 0 4px">닫기<i class="es">Cerrar</i></button>
+  </div>
+</div>
+<div id="tv" class="hide">
+  <div class="tvbar-h">
+    <div class="mk">NKU</div>
+    <h2>도장 생산현황 <i>Estado de producción</i></h2>
+    <div class="tvclock" id="tvClock">--:--</div>
+    <button class="tvx" onclick="closeTV()">닫기 · Salir</button>
+  </div>
+  <div class="tvgrid" id="tvGrid"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const COLORS={BK:{h:"#24282C",kr:"흑색",es:"Negro"},SL:{h:"#B9BEC4",kr:"은색",es:"Plata"},
+              GY:{h:"#7E858C",kr:"회색",es:"Gris"},WH:{h:"#EFF0F2",kr:"백색",es:"Blanco"}};
+
+let PARTS=[
+ {no:"A-1023",kr:"도어 클립",es:"Clip de puerta",c:"BK",sp:"1C1B 무광 · 1 capa mate"},
+ {no:"A-2210",kr:"커버 브라켓",es:"Soporte de cubierta",c:"SL",sp:"2C1B 메탈릭 · 2 capas metálico"},
+ {no:"B-1140",kr:"힌지 캡",es:"Tapa de bisagra",c:"BK",sp:"1C1B 무광 · 1 capa mate"},
+ {no:"B-3302",kr:"노즐 링",es:"Anillo de boquilla",c:"GY",sp:"2C1B 반광 · 2 capas semimate"},
+ {no:"C-1005",kr:"사이드 몰딩",es:"Moldura lateral",c:"BK",sp:"3C2B 유광 · 3 capas brillante"},
+ {no:"C-2418",kr:"트림 패널",es:"Panel de moldura",c:"WH",sp:"2C1B 유광 · 2 capas brillante"},
+ {no:"D-1120",kr:"램프 하우징",es:"Carcasa de lámpara",c:"SL",sp:"2C1B 메탈릭 · 2 capas metálico"},
+ {no:"D-4407",kr:"가니시 A",es:"Guarnición A",c:"BK",sp:"3C2B 유광 · 3 capas brillante"},
+ {no:"E-2201",kr:"스위치 베젤",es:"Bisel de interruptor",c:"GY",sp:"1C1B 무광 · 1 capa mate"},
+ {no:"F-1003",kr:"핸들 커버",es:"Cubierta de manija",c:"SL",sp:"2C1B 메탈릭 · 2 capas metálico"},
+ {no:"G-2205",kr:"미러 캡",es:"Tapa de espejo",c:"WH",sp:"2C1B 유광 · 2 capas brillante"},
+ {no:"H-1077",kr:"필러 가니시",es:"Guarnición de pilar",c:"BK",sp:"UV 하드코트 · Capa dura UV"},
+ {no:"J-3010",kr:"콘솔 트림",es:"Moldura de consola",c:"GY",sp:"2C1B 반광 · 2 capas semimate"},
+ {no:"K-1200",kr:"에어벤트 링",es:"Anillo de ventilación",c:"SL",sp:"1C1B 메탈릭 · 1 capa metálico"}
+];
+
+let PLANS=[
+ {id:1,seq:1,line:"1",shift:"A",no:"A-1023",qty:600},
+ {id:2,seq:2,line:"1",shift:"A",no:"C-1005",qty:400},
+ {id:3,seq:3,line:"1",shift:"A",no:"F-1003",qty:300},
+ {id:4,seq:1,line:"2",shift:"A",no:"B-3302",qty:350},
+ {id:5,seq:2,line:"2",shift:"A",no:"E-2201",qty:220},
+ {id:6,seq:1,line:"3",shift:"A",no:"D-1120",qty:500},
+ {id:7,seq:2,line:"3",shift:"A",no:"D-4407",qty:350},
+ {id:8,seq:3,line:"3",shift:"A",no:"J-3010",qty:200},
+ {id:9,seq:1,line:"4",shift:"A",no:"G-2205",qty:250},
+ {id:10,seq:2,line:"4",shift:"A",no:"C-2418",qty:400},
+ {id:11,seq:1,line:"5",shift:"A",no:"H-1077",qty:800},
+ {id:12,seq:2,line:"5",shift:"A",no:"A-2210",qty:450},
+ {id:13,seq:3,line:"5",shift:"A",no:"B-1140",qty:600}
+];
+
+// 계획 1건당 실적 1건
+let RESULTS=[
+ {pid:1,st:"07:40",in:550,ok:546,ng:4,cm:"",inBy:"박성우",inAt:"07:42",resBy:"Ana Ruiz",resAt:"11:20"},
+ {pid:2,st:"08:20",in:150,ok:0,ng:0,cm:"",inBy:"Luis Mora",inAt:"08:20",resBy:null,resAt:null},
+ {pid:4,st:"06:50",in:350,ok:347,ng:3,cm:"",inBy:"Ana Ruiz",inAt:"06:52",resBy:"Ana Ruiz",resAt:"10:05"},
+ {pid:6,st:"09:50",in:0,ok:0,ng:0,cm:"",inBy:"Juan Pérez",inAt:"09:50",resBy:null,resAt:null},
+ {pid:7,st:"06:40",in:350,ok:348,ng:2,cm:"",inBy:"Juan Pérez",inAt:"06:42",resBy:"Juan Pérez",resAt:"09:30"},
+ {pid:9,st:"07:05",in:250,ok:246,ng:4,cm:"",inBy:"Carlos Díaz",inAt:"07:06",resBy:"Carlos Díaz",resAt:"09:55"},
+ {pid:11,st:"07:10",in:600,ok:582,ng:18,cm:"흐름 불량 · Escurrimiento",inBy:"Carlos Díaz",inAt:"07:12",resBy:"Carlos Díaz",resAt:"10:30"},
+ {pid:12,st:"10:20",in:120,ok:0,ng:0,cm:"",inBy:"Ana Ruiz",inAt:"10:20",resBy:null,resAt:null}
+];
+
+let STAFF=[
+ {id:"u1",emp_no:"10482",name:"김대곤 / D. Kim",shift:"A",role:"admin",approved:true,created_at:"2026-06-02"},
+ {id:"u2",emp_no:"20315",name:"박성우",shift:"A",role:"worker",approved:true,created_at:"2026-06-10"},
+ {id:"u3",emp_no:"20418",name:"Ana Ruiz",shift:"A",role:"worker",approved:true,created_at:"2026-06-11"},
+ {id:"u4",emp_no:"20502",name:"Luis Mora",shift:"B",role:"worker",approved:true,created_at:"2026-06-18"},
+ {id:"u5",emp_no:"20610",name:"Carlos Díaz",shift:"B",role:"worker",approved:true,created_at:"2026-07-02"},
+ {id:"u6",emp_no:"20733",name:"Juan Pérez",shift:"A",role:"worker",approved:false,created_at:"2026-07-29"},
+ {id:"u7",emp_no:"20740",name:"María López",shift:"B",role:"worker",approved:false,created_at:"2026-07-30"}
+];
+let USER=null, curLine=null, curPlan=null, curRes=null, searchMode="plan", view="home", seq=100;
+const $=id=>document.getElementById(id);
+const part=no=>PARTS.find(p=>p.no===no)||{no,kr:"—",es:"—",c:"BK",sp:""};
+const res=pid=>RESULTS.find(r=>r.pid===pid)||null;
+const acc=pid=>{const r=res(pid);return r?{i:r.in,o:r.ok,n:r.ng}:{i:0,o:0,n:0};};
+const pending=r=>r&&r.ok+r.ng<r.in;
+// 대기(wait) → 투입중(run) → 생산종료(done)
+const state=pid=>{const r=res(pid); return !r?"wait":(r.ok+r.ng>0?"done":"run");};
+const ST={wait:["대기 · Sin iniciar","wait"],run:["투입중 · En proceso","run"],done:["생산종료 · Terminado","done"]};
+const chip=k=>`<span class="st ${ST[k][1]}">${k==="run"?'<i class="ldot"></i>':""}${ST[k][0]}</span>`;
+const ftt=r=>r&&r.in?r.ok/r.in*100:null;
+const now=()=>new Date().toTimeString().slice(0,5);
+
+/* AUTH */
+let mode="in";
+function authTab(m){
+  mode=m; $("tabIn").classList.toggle("on",m==="in"); $("tabUp").classList.toggle("on",m==="up");
+  $("upOnly").classList.toggle("hide",m==="in"); $("upNote").hidden=m==="in";
+  $("aGo").innerHTML = m==="in" ? '로그인<i class="es">Entrar</i>' : '가입 신청<i class="es">Crear cuenta</i>';
+  $("authErr").classList.add("hide");
+}
+function doAuth(){
+  const emp=$("aEmp").value.trim(), pin=$("aPin").value.trim();
+  if(!emp||pin.length!==4) return showErr("사번과 PIN 4자리를 입력해라. · Ingresa tu número de empleado y un PIN de 4 dígitos.");
+  if(mode==="up" && !$("aName").value.trim()) return showErr("이름을 입력해라. · Ingresa tu nombre.");
+  USER={emp,name:mode==="up"?$("aName").value.trim():"김대곤 / D. Kim",shift:mode==="up"?$("aShift").value:"A",admin:true};
+  $("auth").classList.add("hide"); $("app").classList.remove("hide");
+  $("whoName").textContent=USER.name; $("whoMeta").textContent=`${USER.shift}조 · Turno ${USER.shift}`;
+  const d=new Date(); $("dToday").textContent=`${d.getMonth()+1}/${d.getDate()}`;
+  go("home");
+  if(location.hash==="#tv"){ go("dash"); openTV(); return; }
+  toast(mode==="up"?"가입 신청 완료 · Cuenta creada":"로그인 완료 · Sesión iniciada");
+}
+function showErr(m){const e=$("authErr");e.textContent=m;e.classList.remove("hide");}
+
+/* NAV */
+const TITLES={home:['라인 선택','Selecciona una línea'],line:['계획 목록','Planes de la línea'],
+  detail:['실적 입력','Registrar resultado'],plan:['계획 등록','Registrar plan'],
+  dash:['실시간 현황','Estado en tiempo real'],master:['품번 마스터','Maestro de partes'],
+  staff:['작업자 관리','Gestión de personal']};
+function go(v){
+  view=v;
+  ["home","line","detail","plan","dash","master","staff"].forEach(k=>$("v-"+k).classList.toggle("hide",k!==v));
+  const tab=(v==="home"||v==="line"||v==="detail")?"work":v;
+  ["work","plan","dash","master","staff"].forEach(k=>$("t-"+k).classList.toggle("on",k===tab));
+  const deep=v==="line"||v==="detail";
+  $("btnBack").classList.toggle("hide",!deep); $("brand").classList.toggle("hide",deep);
+  $("barTitle").innerHTML=`${TITLES[v][0]} <i class="es">${TITLES[v][1]}</i>`;
+  window.scrollTo(0,0); render();
+}
+function back(){ view==="detail"?go("line"):go("home"); }
+
+/* RENDER */
+function render(){
+  if(view==="home") renderLines(); else if(view==="line") renderPlans();
+  else if(view==="detail") renderDetail(); else if(view==="plan") renderPlanAdmin();
+  else if(view==="dash") renderDash(); else if(view==="master") renderMaster();
+  else if(view==="staff") renderStaff();
+}
+
+function renderLines(){
+  $("lineGrid").innerHTML=["1","2","3","4","5"].map(L=>{
+    const ps=PLANS.filter(p=>p.line===L);
+    const q=ps.reduce((s,p)=>s+p.qty,0);
+    const a=ps.reduce((s,p)=>{const x=acc(p.id);return{i:s.i+x.i,o:s.o+x.o,n:s.n+x.n}},{i:0,o:0,n:0});
+    const pct=q?Math.round(a.o/q*100):0;
+    const run=ps.filter(p=>state(p.id)==="run").length, dn=ps.filter(p=>state(p.id)==="done").length;
+    return `<div class="lcard ${ps.length?'':'idle'}" onclick="openLine('${L}')">
+      <div class="lno">${L}</div>
+      <div class="lbody">
+        <div class="t">${L}번라인 <span class="es">Línea ${L} · ${ps.length}품목 · 투입중 ${run} · 종료 ${dn}</span></div>
+        <div class="track"><div class="fill ${pct>=100?'full':''}" style="width:${Math.min(100,pct)}%"></div></div>
+      </div>
+      <div class="lstat"><b>${pct}%</b><span>달성 · Avance</span></div></div>`;
+  }).join("");
+}
+function openLine(L){curLine=L;go("line");}
+
+function renderPlans(){
+  $("lineTitle").innerHTML=`${curLine}번라인 계획<i class="es">Línea ${curLine} — en orden de registro</i>`;
+  const mine=PLANS.filter(p=>p.line===curLine).sort((a,b)=>a.seq-b.seq);
+  const el=$("planList");
+  if(!mine.length){ el.innerHTML=`<div class="card empty"><strong>등록된 계획이 없다</strong>
+      <span class="es">No hay plan registrado para esta línea</span></div>`; return; }
+  el.innerHTML=mine.map(p=>{
+    const P=part(p.no), r=res(p.id), a=acc(p.id), k=state(p.id);
+    const pct=p.qty?Math.min(100,Math.round(a.o/p.qty*100)):0, f=ftt(r);
+    return `<div class="plan ${k==="done"?'done':''}">
+      <div class="seqn">${String(p.seq).padStart(2,"0")}</div>
+      <div class="pbody" onclick="openPlan(${p.id})">
+        <div class="ph"><span class="dot" style="background:${COLORS[P.c].h}"></span>
+          <div class="pn">${p.no}<i class="es">${P.kr} · ${P.es}</i></div></div>
+        <div style="margin:6px 0">${chip(k)}</div>
+        <div class="nums"><span>계획 <b>${p.qty}</b></span><span>투입 <b>${a.i}</b></span>
+          <span>OK <b>${a.o}</b></span><span>NG <b>${a.n}</b></span></div>
+        <div class="track"><div class="fill ${pct>=100?'full':''}" style="width:${pct}%"></div></div>
+        <div class="pct"><span>${pct}%</span>
+          <span class="${f!==null&&f<97?'bad':''}">직행율 ${f===null?"—":f.toFixed(1)+"%"}</span></div>
+      </div>
+      <div class="pact">${ r
+        ? `<div class="stime">${r.st}<span>투입시작<br>Inicio</span></div>`
+        : `<button class="startb" onclick="startRun(${p.id},event)">투입시작<i>Iniciar</i></button>` }</div>
+    </div>`;
+  }).join("");
+}
+function startRun(id,ev){
+  ev.stopPropagation();
+  if(res(id)) return;
+  RESULTS.push({pid:id,st:now(),in:0,ok:0,ng:0,cm:"",inBy:USER.name,inAt:now(),resBy:null,resAt:null});
+  render(); toast(`투입시작 ${now()} · Ingreso iniciado`);
+}
+function openPlan(id){curPlan=PLANS.find(p=>p.id===id);go("detail");}
+
+function renderDetail(){
+  const p=curPlan, P=part(p.no), r=res(p.id), k=state(p.id); curRes=r;
+  $("detHead").innerHTML=`
+    <div class="t"><span class="dot" style="background:${COLORS[P.c].h}"></span>
+      <h2>${p.no}</h2><span class="tag">${p.line}번라인 ${p.shift}조</span></div>
+    <div class="es" style="margin-top:4px">${P.kr} · ${P.es} — ${COLORS[P.c].kr} / ${COLORS[P.c].es}</div>
+    <div class="es" style="margin-top:3px;color:var(--or-d)">도장사양 · Especificación — ${P.sp||"미등록"}</div>
+    <div style="margin-top:9px">${chip(k)}</div>
+    <div class="meta">
+      <div class="mbox"><span>계획 · Plan</span><b>${p.qty||"—"}</b></div>
+      <div class="mbox"><span>OK</span><b>${r?r.ok:0}</b></div>
+      <div class="mbox rest"><span>잔량 · Restante</span><b>${p.qty?Math.max(0,p.qty-(r?r.ok:0)):"—"}</b></div>
+    </div>`;
+  $("stBox").innerHTML = r
+    ? `<div class="startbox"><span class="tx">투입시작 · Inicio</span>
+         <span style="font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--or-d)">${r.st}</span></div>`
+    : `<div class="startbox"><span class="tx">투입시작 전이다<i class="es" style="color:var(--or-d);opacity:.8">Aún no se ha iniciado el ingreso</i></span>
+         <button class="startb" onclick="startHere()">지금 시작<i>Iniciar ahora</i></button></div>`;
+  if(r){
+    $("fIn").value=r.in||""; $("fOk").value=r.ok||""; $("fNg").value=r.ng||""; $("fCm").value=r.cm||"";
+    $("eTrail").innerHTML=`투입 <b>${r.inBy}</b> ${r.inAt}<br>결과 ${r.resBy?`<b>${r.resBy}</b> ${r.resAt}`:"미입력 · Sin registrar"}`;
+    $("eTrail").classList.remove("hide");
+    $("eSave").innerHTML = k==="done" ? '수정 저장<i class="es">Guardar cambios</i>' : '실적 저장<i class="es">Guardar resultado</i>';
+    $("eSaveIn").classList.toggle("hide", k==="done");
+  }else{
+    ["fIn","fOk","fNg","fCm"].forEach(i=>$(i).value="");
+    $("eTrail").classList.add("hide");
+    $("eSave").innerHTML='실적 저장<i class="es">Guardar resultado</i>';
+    $("eSaveIn").classList.remove("hide");
+  }
+  $("eErr").classList.add("hide"); calc();
+}
+function startHere(){
+  if(res(curPlan.id)) return;
+  RESULTS.push({pid:curPlan.id,st:now(),in:0,ok:0,ng:0,cm:"",inBy:USER.name,inAt:now(),resBy:null,resAt:null});
+  renderDetail(); toast(`투입시작 ${now()} · Ingreso iniciado`);
+}
+function calc(){
+  const i=+$("fIn").value||0, o=+$("fOk").value||0, v=$("fFtt");
+  if(!i||!o){ v.textContent="—"; v.className="vl"; return; }
+  const f=o/i*100; v.textContent=f.toFixed(1)+"%"; v.className="vl "+(f>=97?"g":"r");
+}
+function fromNg(){ const i=+$("fIn").value||0; $("fOk").value=Math.max(0,i-(+$("fNg").value||0)); calc(); }
+function fromOk(){ const i=+$("fIn").value||0; $("fNg").value=Math.max(0,i-(+$("fOk").value||0)); calc(); }
+
+function saveEntry(inputOnly){
+  const i=+$("fIn").value||0;
+  const o=inputOnly?0:(+$("fOk").value||0), n=inputOnly?0:(+$("fNg").value||0);
+  const cm=$("fCm").value.trim(), e=$("eErr"); e.classList.add("hide");
+  const bad=m=>{e.textContent=m;e.classList.remove("hide");return false};
+  if(i<=0) return bad("투입수량을 입력해라. · Ingresa la cantidad ingresada.");
+  if(o+n>i) return bad(`OK + NG 가 투입수량을 넘는다 (${o}+${n} > ${i}). · OK + NG no puede superar la cantidad ingresada.`);
+  const done=o+n>0;
+  if(curRes){
+    curRes.in=i; curRes.ok=o; curRes.ng=n; curRes.cm=cm;
+    if(done){ curRes.resBy=USER.name; curRes.resAt=now(); }
+  }else{
+    RESULTS.push({pid:curPlan.id,st:now(),in:i,ok:o,ng:n,cm,inBy:USER.name,inAt:now(),
+      resBy:done?USER.name:null,resAt:done?now():null});
+  }
+  toast(done?`생산종료 · Terminado — 직행율 ${(o/i*100).toFixed(1)}%`:`투입수량 저장 · Ingreso ${i} — 투입중`);
+  go("line");
+}
+
+let dFilter="all";
+function setFilter(f,btn){
+  dFilter=f;
+  [...$("dashSeg").children].forEach(b=>b.classList.toggle("on",b===btn));
+  renderDash();
+}
+function renderDash(){
+  const all=PLANS.slice();
+  const cnt={wait:0,run:0,done:0};
+  all.forEach(p=>cnt[state(p.id)]++);
+  $("dashSum").innerHTML=`
+    <div class="r"><b>${cnt.run}</b><span>투입중 · En proceso</span></div>
+    <div class="d"><b>${cnt.done}</b><span>생산종료 · Terminado</span></div>
+    <div><b>${cnt.wait}</b><span>대기 · Sin iniciar</span></div>`;
+
+  const order={run:0,done:1,wait:2};
+  $("dashList").innerHTML=["1","2","3","4","5"].map(L=>{
+    const ps=PLANS.filter(p=>p.line===L);
+    const q=ps.reduce((s,p)=>s+p.qty,0);
+    const a=ps.reduce((s,p)=>{const x=acc(p.id);return{i:s.i+x.i,o:s.o+x.o,n:s.n+x.n}},{i:0,o:0,n:0});
+    const pct=q?Math.round(a.o/q*100):0, lf=a.i?a.o/a.i*100:null;
+    const run=ps.filter(p=>state(p.id)==="run").length, dn=ps.filter(p=>state(p.id)==="done").length;
+    const shown=ps.filter(p=>dFilter==="all"||state(p.id)===dFilter)
+                  .sort((x,y)=>order[state(x.id)]-order[state(y.id)]||x.seq-y.seq);
+    const items=shown.length?shown.map(p=>{
+      const P=part(p.no), r=res(p.id), x=acc(p.id), k=state(p.id);
+      const ip=p.qty?Math.min(100,Math.round(x.o/p.qty*100)):0, f=ftt(r);
+      return `<div class="ditem">
+        <div class="dtop"><span class="dot" style="background:${COLORS[P.c].h}"></span>
+          <span class="dno">${p.no}</span><span class="dnm">${P.kr} · ${P.es}</span>
+          <span class="dpct ${ip>=100?'g':''}">${ip}%</span></div>
+        <div style="margin:0 0 6px">${chip(k)}</div>
+        <div class="dbar"><i style="width:${ip}%;background:${k==="done"?'var(--ok)':'var(--or)'}"></i></div>
+        <div class="dnum"><span>투입시작 <b>${r?r.st:"—"}</b></span><span>계획 <b>${p.qty||"—"}</b></span>
+          <span>투입 <b>${x.i}</b></span><span>OK <b class="g">${x.o}</b></span><span>NG <b class="r">${x.n}</b></span>
+          <span class="${f!==null&&f<97?'bad':''}">직행율 <b>${f===null?"—":f.toFixed(1)+"%"}</b></span></div>
+        ${r&&r.cm?`<div class="dsp" style="color:var(--ink2)">${r.cm}</div>`:""}
+        <div class="dsp">${P.sp||""}</div></div>`;
+    }).join(""):`<div class="dnone">해당 상태의 품목 없음 · Sin partes en este estado</div>`;
+    return `<div class="dcard">
+      <div class="dh"><h3>${L}번라인</h3><span class="s">투입중 ${run} · 종료 ${dn} · 전체 ${ps.length}</span>
+        <span class="p" style="color:${pct>=100?'var(--ok)':'var(--ink)'}">${pct}%</span></div>
+      <div class="track"><div class="fill ${pct>=100?'full':''}" style="width:${Math.min(100,pct)}%"></div></div>
+      <div class="kpi">
+        <div><span>계획 · Plan</span><b>${q}</b></div>
+        <div><span>투입 · Ing.</span><b>${a.i}</b></div>
+        <div><span>OK</span><b style="color:var(--ok)">${a.o}</b></div>
+        <div><span>직행율 · FTT</span><b style="color:${lf!==null&&lf<97?'var(--ng)':'var(--ink)'}">${lf===null?"—":lf.toFixed(1)}</b></div>
+      </div>
+      <div class="dlist">${items}</div></div>`;
+  }).join("");
+}
+
+function renderMaster(){
+  $("masterList").innerHTML=[...PARTS].sort((a,b)=>a.no.localeCompare(b.no)).map(p=>
+    `<div class="mrow"><span class="dot" style="background:${COLORS[p.c].h}"></span>
+      <span class="no">${p.no}</span>
+      <span class="nm">${p.kr} · ${p.es}<i>${COLORS[p.c].kr} / ${COLORS[p.c].es} — ${p.sp||"사양 미등록"}</i></span></div>`).join("");
+}
+function renderPlanAdmin(){
+  $("planAdmin").innerHTML=PLANS.slice().sort((a,b)=>a.line.localeCompare(b.line)||a.seq-b.seq).map(p=>{
+    const P=part(p.no), a=acc(p.id);
+    return `<div class="mrow"><span class="tag">${p.line}L·${p.shift}·${String(p.seq).padStart(2,"0")}</span>
+      <span class="no">${p.no}</span>
+      <span class="nm">${P.kr}<i>계획 ${p.qty} · OK ${a.o}</i></span></div>`;
+  }).join("")||`<div class="empty"><strong>계획 없음</strong><span class="es">Sin planes</span></div>`;
+}
+
+/* ═══ 작업자 관리 (데모) ═══ */
+function renderStaff(){
+  const wait=STAFF.filter(w=>!w.approved), ok=STAFF.filter(w=>w.approved);
+  $("staffWait").innerHTML = wait.length ? wait.map(w=>`
+    <div class="srow"><div class="av">${(w.name||"?").trim()[0]}</div>
+      <div class="in"><div class="nm">${w.name}</div>
+        <div class="sub">사번 ${w.emp_no} · ${w.shift||"—"}조 · 신청 ${w.created_at}</div></div>
+      <div class="ac"><button class="sbtn go" onclick="approve('${w.id}',true)">승인 · Aprobar</button></div>
+    </div>`).join("")
+    : `<div class="empty"><strong>승인 대기 없음</strong><span class="es">No hay solicitudes pendientes</span></div>`;
+
+  $("staffList").innerHTML = ok.length ? ok.map(w=>{
+    const me=w.emp_no===USER.emp, adm=w.role==="admin";
+    return `<div class="srow"><div class="av ${adm?'adm':''}">${(w.name||"?").trim()[0]}</div>
+      <div class="in"><div class="nm">${w.name}${me?' <span class="tag">본인</span>':''}</div>
+        <div class="sub">사번 ${w.emp_no} · ${w.shift||"—"}조 · ${adm?"관리자 · Admin":"작업자 · Operador"}</div></div>
+      <div class="ac">
+        <button class="sbtn" onclick="setRole('${w.id}','${adm?"worker":"admin"}')" ${me?"disabled":""}>
+          ${adm?"관리자 해제":"관리자 지정"}</button>
+        <button class="sbtn off" onclick="approve('${w.id}',false)" ${me?"disabled":""}>차단</button>
+      </div></div>`;
+  }).join("") : `<div class="empty"><strong>등록된 작업자 없음</strong><span class="es">Sin personal registrado</span></div>`;
+}
+function approve(id,val){
+  const w=STAFF.find(x=>x.id===id); if(!w) return;
+  w.approved=val; renderStaff(); toast(val?`${w.name} 승인 완료 · Aprobado`:`${w.name} 차단 · Bloqueado`);
+}
+function setRole(id,role){
+  const w=STAFF.find(x=>x.id===id); if(!w) return;
+  w.role=role; renderStaff();
+  toast(role==="admin"?`${w.name} 관리자 지정 · Ahora es admin`:`${w.name} 작업자로 변경 · Ahora es operador`);
+}
+
+/* ═══ CSV ═══ */
+function dl(name,rows){
+  const csv="\uFEFF"+rows.map(r=>r.map(c=>{c=String(c??"");
+    return /[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c;}).join(",")).join("\r\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+  a.download=name; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+}
+function parseCSV(t){
+  t=t.replace(/^\uFEFF/,""); const out=[]; let row=[],cur="",q=false;
+  for(let i=0;i<t.length;i++){ const c=t[i];
+    if(q){ if(c==='"'){ if(t[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=c; }
+    else if(c==='"') q=true;
+    else if(c===","){row.push(cur);cur="";}
+    else if(c==="\n"){row.push(cur);out.push(row);row=[];cur="";}
+    else if(c!=="\r") cur+=c; }
+  if(cur!==""||row.length){row.push(cur);out.push(row);}
+  return out.filter(r=>r.some(c=>c.trim()!==""));
+}
+function report(el,lines){ const e=$(el); e.innerHTML=lines.join("<br>"); e.classList.remove("hide"); }
+
+function tplPart(){
+  dl("마스터_양식.csv",[["품번","품명(한국어)","품명(스페인어)","컬러","도장사양"],
+    ["A-1023","도어 클립","Clip de puerta","BK","1C1B 무광 · 1 capa mate"],
+    ["B-3302","노즐 링","Anillo de boquilla","GY","2C1B 반광 · 2 capas semimate"]]);
+  toast("양식 내려받기 · Plantilla descargada");
+}
+function impPart(inp){
+  const f=inp.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    let rows=parseCSV(rd.result);
+    if(rows.length && /품번|part/i.test(rows[0][0]||"")) rows=rows.slice(1);
+    let add=0,dup=0,err=[];
+    rows.forEach((r,k)=>{
+      const no=(r[0]||"").trim().toUpperCase();
+      const c=(r[3]||"").trim().toUpperCase();
+      if(!no){err.push(`${k+2}행 품번 없음`);return;}
+      if(!COLORS[c]){err.push(`${k+2}행 컬러 오류 (${r[3]||"공백"})`);return;}
+      if(PARTS.some(p=>p.no===no)){dup++;return;}
+      PARTS.push({no,kr:(r[1]||"").trim()||no,es:(r[2]||"").trim()||no,c,sp:(r[4]||"").trim()});
+      add++;
+    });
+    renderMaster();
+    report("partRep",[`추가 <b>${add}건</b> · Agregados`,
+      dup?`중복 건너뜀 ${dup}건 · Duplicados omitidos`:"",
+      err.length?`오류 ${err.length}건 — ${err.slice(0,3).join(" / ")}${err.length>3?" …":""}`:""].filter(Boolean));
+    toast(`마스터 ${add}건 등록 · ${add} agregados`);
+    inp.value="";
+  };
+  rd.readAsText(f,"utf-8");
+}
+
+function tplPlan(){
+  dl("계획_양식.csv",[["라인","품번","계획수량"],["1","A-1023","600"],["2","B-3302","350"]]);
+  toast("양식 내려받기 · Plantilla descargada");
+}
+function impPlan(inp){
+  const f=inp.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    let rows=parseCSV(rd.result);
+    if(rows.length && /라인|line/i.test(rows[0][0]||"")) rows=rows.slice(1);
+    let add=0,err=[];
+    rows.forEach((r,k)=>{
+      const L=(r[0]||"").trim().replace(/[^0-9]/g,"");
+      const no=(r[1]||"").trim().toUpperCase();
+      const qty=parseInt((r[2]||"").replace(/[^0-9]/g,""),10);
+      if(!["1","2","3","4","5"].includes(L)){err.push(`${k+2}행 라인 오류`);return;}
+      if(!PARTS.some(p=>p.no===no)){err.push(`${k+2}행 마스터에 없는 품번 (${no||"공백"})`);return;}
+      if(!qty||qty<=0){err.push(`${k+2}행 수량 오류`);return;}
+      PLANS.push({id:++seq,seq:PLANS.filter(p=>p.line===L).length+1,line:L,shift:$("pShift").value,no,qty});
+      add++;
+    });
+    render();
+    report("planRep",[`등록 <b>${add}건</b> · Planes cargados`,
+      err.length?`오류 ${err.length}건 — ${err.slice(0,3).join(" / ")}${err.length>3?" …":""}`:""].filter(Boolean));
+    toast(`계획 ${add}건 등록 · ${add} planes`);
+    inp.value="";
+  };
+  rd.readAsText(f,"utf-8");
+}
+
+/* SEARCH */
+function openSearch(m){
+  searchMode=m;
+  $("sTitle").textContent=m==="plan"?"품번 선택 · Seleccionar parte":"계획에 없는 품번 · Parte sin plan";
+  $("sQ").value=""; renderSearch(); open($("shSearch")); setTimeout(()=>$("sQ").focus(),320);
+}
+function renderSearch(){
+  const q=$("sQ").value.trim().toUpperCase();
+  const rows=PARTS.filter(p=>p.no.toUpperCase().includes(q)||p.kr.includes(q)||p.es.toUpperCase().includes(q))
+                  .sort((a,b)=>a.no.localeCompare(b.no));
+  if(!rows.length){ $("sList").innerHTML=`<div class="empty"><strong>검색 결과 없음</strong>
+      <span class="es">Sin resultados — revisa el maestro</span></div>`; return; }
+  let out="",letter="";
+  rows.forEach(p=>{
+    const L=p.no[0].toUpperCase();
+    if(L!==letter){letter=L;out+=`<div class="abc">${L}</div>`;}
+    const hi=q?p.no.replace(new RegExp(q,"i"),m=>`<mark>${m}</mark>`):p.no;
+    out+=`<div class="item" onclick="pick('${p.no}')">
+      <span class="dot" style="background:${COLORS[p.c].h}"></span>
+      <span class="no">${hi}</span>
+      <span class="nm">${p.kr}<i>${p.es} · ${p.sp||COLORS[p.c].es}</i></span></div>`;
+  });
+  $("sList").innerHTML=out;
+}
+function pick(no){
+  if(searchMode==="plan"){
+    const P=part(no); $("pPart").dataset.no=no;
+    $("pPart").innerHTML=`${no} <i class="es">${P.kr} · ${P.es}</i>`; closeAll();
+  }else{
+    const np={id:++seq,seq:PLANS.filter(p=>p.line===curLine).length+1,line:curLine,shift:USER.shift,no,qty:0,adhoc:true};
+    PLANS.push(np); curPlan=np; closeAll(); setTimeout(()=>go("detail"),260);
+  }
+}
+
+/* ADMIN */
+function addPlan(){
+  const no=$("pPart").dataset.no, qty=+$("pQty").value||0, L=$("pLine").value;
+  if(!no||qty<=0) return toast("품번과 계획수량을 확인해라 · Revisa parte y cantidad");
+  PLANS.push({id:++seq,seq:PLANS.filter(p=>p.line===L).length+1,line:L,shift:$("pShift").value,no,qty});
+  $("pQty").value=""; render(); toast("계획 등록 완료 · Plan guardado");
+}
+function addPart(){
+  const no=$("mNo").value.trim().toUpperCase();
+  if(!no) return toast("품번을 입력해라 · Ingresa el número de parte");
+  if(PARTS.some(p=>p.no===no)) return toast("이미 등록된 품번 · Ya existe");
+  PARTS.push({no,kr:$("mKr").value.trim()||no,es:$("mEs").value.trim()||no,c:$("mCol").value,sp:$("mSp").value.trim()});
+  ["mNo","mKr","mEs","mSp"].forEach(i=>$(i).value=""); renderMaster();
+  toast("마스터 추가 완료 · Agregado al maestro");
+}
+
+/* ═══ TV 모드 ═══ */
+let tvTimer=null;
+function openTV(){
+  $("tv").classList.remove("hide");
+  document.body.style.overflow="hidden";
+  if(location.hash!=="#tv") history.replaceState(null,"","#tv");
+  renderTV();
+  tvTimer=setInterval(renderTV,60000);
+  const el=document.documentElement;
+  if(el.requestFullscreen) el.requestFullscreen().catch(()=>{});
+}
+function closeTV(){
+  $("tv").classList.add("hide");
+  document.body.style.overflow="";
+  history.replaceState(null,"",location.pathname);
+  clearInterval(tvTimer); tvTimer=null;
+  if(document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+}
+function renderTV(){
+  $("tvClock").textContent=now();
+  const lineData=["1","2","3","4","5"].map(L=>{
+    const ps=PLANS.filter(p=>p.line===L);
+    const q=ps.reduce((s,p)=>s+p.qty,0);
+    const a=ps.reduce((s,p)=>{const x=acc(p.id);return{i:s.i+x.i,o:s.o+x.o,n:s.n+x.n}},{i:0,o:0,n:0});
+    const running=ps.filter(p=>state(p.id)==="run");
+    const done=ps.filter(p=>state(p.id)==="done").length;
+    return {L,ps,q,a,running,done,
+      pct:q?Math.round(a.o/q*100):0,
+      f:a.i?a.o/a.i*100:null,
+      k:running.length?"run":(ps.length&&done===ps.length?"done":"wait")};
+  });
+
+  const MK={run:"\u25CF",done:"\u2713",wait:"\u25CB"};
+  const ORD={run:0,done:1,wait:2};
+  const LIMIT=5;
+  const tiles=lineData.map(d=>{
+    const lbl={run:"투입중 · En proceso",done:"생산종료 · Terminado",wait:"대기 · Sin iniciar"}[d.k];
+    const sorted=d.ps.slice().sort((x,y)=>ORD[state(x.id)]-ORD[state(y.id)]||x.seq-y.seq);
+    const rows=sorted.slice(0,LIMIT).map(p=>{
+      const P=part(p.no), x=acc(p.id), k=state(p.id);
+      const ip=p.qty?Math.min(100,Math.round(x.o/p.qty*100)):0;
+      return `<div class="tvi ${k}"><span class="mk">${MK[k]}</span>
+        <span class="no">${p.no}</span>
+        <span class="bar"><i style="width:${ip}%"></i></span>
+        <span class="q"><b>${x.o.toLocaleString()}</b>/${(p.qty||0).toLocaleString()}</span>
+        <span class="p">${ip}%</span></div>`;
+    }).join("");
+    const more=sorted.length>LIMIT?`<div class="tvmore">외 ${sorted.length-LIMIT}품목 · +${sorted.length-LIMIT} más</div>`:"";
+    const body=sorted.length?rows+more:`<div class="tvmore">계획 없음 · Sin plan</div>`;
+    return `<div class="tvt ${d.k}">
+      <div class="tvth"><span class="tvln">${d.L}<i>번라인 · Línea ${d.L}</i></span>
+        <span class="tvchip ${d.k}">${d.k==="run"?'<i class="ldot"></i>':""}${lbl}</span></div>
+      <div class="tvrow"><span class="tvbig ${d.pct>=100?'g':''}">${d.pct}<small>%</small></span>
+        <span class="tvratio"><b>${d.a.o.toLocaleString()}</b> / ${d.q.toLocaleString()}
+          <i>OK / 계획 · Plan — ${d.ps.length}품목</i></span></div>
+      <div class="tvb"><i class="${d.pct>=100?'g':''}" style="width:${Math.min(100,d.pct)}%"></i></div>
+      <div class="tvn"><span>투입 <b>${d.a.i.toLocaleString()}</b></span>
+        <span class="r">NG <b>${d.a.n}</b></span>
+        <span>직행율 <b>${d.f===null?"—":d.f.toFixed(1)+"%"}</b></span></div>
+      <div class="tvitems">${body}</div>
+    </div>`;
+  }).join("");
+
+  const Q=lineData.reduce((s,d)=>s+d.q,0);
+  const A=lineData.reduce((s,d)=>({i:s.i+d.a.i,o:s.o+d.a.o,n:s.n+d.a.n}),{i:0,o:0,n:0});
+  const P=Q?Math.round(A.o/Q*100):0, F=A.i?A.o/A.i*100:null;
+  const runN=PLANS.filter(p=>state(p.id)==="run").length;
+  const doneN=PLANS.filter(p=>state(p.id)==="done").length;
+  const mini=lineData.map(d=>`<div class="tvmr"><span class="l">${d.L}</span>
+      <span class="bar"><i style="width:${Math.min(100,d.pct)}%"></i></span>
+      <span class="v">${d.pct}%</span></div>`).join("");
+
+  $("tvGrid").innerHTML = tiles + `<div class="tvt tot">
+    <div class="tvth"><span class="tvln">전체 진도율<i>Avance total</i></span>
+      <span class="tvchip run"><i class="ldot"></i>투입중 ${runN} · 종료 ${doneN}</span></div>
+    <div class="tvrow"><span class="tvbig ${P>=100?'g':''}">${P}<small>%</small></span>
+      <span class="tvratio"><b>${A.o.toLocaleString()}</b> / ${Q.toLocaleString()}
+        <i>OK / 계획 · Plan — ${PLANS.length}품목</i></span></div>
+    <div class="tvb"><i class="${P>=100?'g':''}" style="width:${Math.min(100,P)}%"></i></div>
+    <div class="tvn"><span>투입 <b>${A.i.toLocaleString()}</b></span>
+      <span class="r">NG <b>${A.n}</b></span>
+      <span>직행율 <b>${F===null?"—":F.toFixed(1)+"%"}</b></span></div>
+    <div class="tvmini">${mini}</div>
+  </div>`;
+}
+window.addEventListener("keydown",e=>{ if(e.key==="Escape" && tvTimer) closeTV(); });
+
+/* UTIL */
+function open(sh){$("scrim").classList.add("on");sh.classList.add("on");}
+function closeAll(){$("scrim").classList.remove("on");
+  document.querySelectorAll(".sheet").forEach(s=>s.classList.remove("on"));}
+let tt;
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");
+  clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("on"),2400);}
+</script>
+</body>
+</html>
