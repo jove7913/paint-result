@@ -238,71 +238,97 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
 .tabs button.on{color:var(--or)}
 
 /* ═══ TV 모드 ═══ */
-#tv{position:fixed;inset:0;z-index:70;background:#0C0E11;color:#F2F4F6;
+#tv{
+  --tvbg:#12161B; --tvcard:#1D232B; --tvcard2:#232A33; --tvline:#333C46;
+  --tvtx:#F5F7F9; --tvmut:#AEB7C1; --tvdim:#8B949E; --tvhead:#9AA3AD;
+  --tvrun:#FFB067; --tvrunbg:rgba(237,111,0,.20); --tvdone:#6FE3B8; --tvdonebg:rgba(23,121,94,.24);
+  --tvng:#FF8E82; --tvbar:#333C46; --tvfill:#F5820A; --tvfillg:#27B78C; --tvzebra:rgba(255,255,255,.045);
+  position:fixed;inset:0;z-index:70;background:var(--tvbg);color:var(--tvtx);
   display:flex;flex-direction:column;padding:clamp(8px,1.2vw,20px)}
-.tvbar-h{display:flex;align-items:center;gap:12px;padding:0 4px clamp(6px,.8vw,12px)}
+#tv.light{
+  --tvbg:#EDF0F3; --tvcard:#FFFFFF; --tvcard2:#F6F8FA; --tvline:#D3DAE1;
+  --tvtx:#14171B; --tvmut:#4B535B; --tvdim:#6B737C; --tvhead:#6B737C;
+  --tvrun:#A24C00; --tvrunbg:#FFEBD6; --tvdone:#0E6A50; --tvdonebg:#DCF2EA;
+  --tvng:#B3271E; --tvbar:#E1E6EB; --tvfill:#ED6F00; --tvfillg:#17795E; --tvzebra:rgba(0,0,0,.035)}
+.tvbar-h{display:flex;align-items:center;gap:clamp(8px,1vw,16px);padding:0 4px clamp(6px,.8vw,12px)}
 .tvbar-h .mk{width:clamp(24px,2vw,38px);height:clamp(24px,2vw,38px);border-radius:8px;background:var(--or);
   display:grid;place-items:center;color:#fff;font-weight:700;font-size:clamp(10px,.9vw,15px)}
 .tvbar-h h2{margin:0;font-size:clamp(13px,1.4vw,26px);font-weight:700;letter-spacing:-.02em;flex:1}
-.tvbar-h h2 i{font-style:normal;font-weight:400;color:#7E868F;font-size:.72em;margin-left:8px}
-.tvclock{font-size:clamp(14px,1.6vw,30px);font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
-.tvx{border:1px solid #2B3037;background:#171A1F;color:#C9CFD6;border-radius:9px;
-  padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer}
-.tvx:active{background:#22262C}
+.tvbar-h h2 i{font-style:normal;font-weight:400;color:var(--tvdim);font-size:.72em;margin-left:8px}
+.tvclock{font-size:clamp(14px,1.6vw,30px);font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1.1}
+.tvsync{font-size:clamp(8.5px,.7vw,13px);color:var(--tvdim);font-variant-numeric:tabular-nums;margin-top:2px}
+.tvx{border:1px solid var(--tvline);background:var(--tvcard);color:var(--tvmut);border-radius:9px;
+  padding:7px 12px;font-size:clamp(10px,.8vw,14px);font-weight:600;cursor:pointer;white-space:nowrap}
+.tvx:active{background:var(--tvcard2)}
+
 .tvgrid{flex:1;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);
   gap:clamp(6px,.8vw,14px);min-height:0}
 @media (max-aspect-ratio:1/1){.tvgrid{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(3,1fr)}}
-.tvt{background:#15181D;border:1px solid #23272E;border-radius:clamp(10px,1vw,18px);
-  padding:clamp(9px,1vw,20px);display:flex;flex-direction:column;min-height:0;overflow:hidden}
-.tvt.run{border-color:#5A3A12;background:linear-gradient(180deg,#1D1710 0%,#15181D 55%)}
-.tvt.tot{background:#12161B;border-color:#2A3038}
+.tvt{background:var(--tvcard);border:1px solid var(--tvline);border-radius:clamp(10px,1vw,18px);
+  padding:clamp(9px,1vw,20px);display:flex;flex-direction:column;min-height:0;overflow:hidden;
+  border-left:clamp(3px,.32vw,6px) solid var(--tvline)}
+.tvt.run{border-left-color:var(--tvfill)}
+.tvt.done{border-left-color:var(--tvfillg)}
+.tvt.tot{background:var(--tvcard2);border-left-color:var(--tvline)}
 .tvth{display:flex;align-items:center;gap:7px;margin-bottom:clamp(4px,.5vw,10px)}
 .tvln{font-size:clamp(14px,1.5vw,30px);font-weight:700;letter-spacing:-.03em}
-.tvln i{font-style:normal;font-weight:400;color:#7E868F;font-size:.6em;margin-left:5px}
-.tvchip{margin-left:auto;font-size:clamp(9px,.72vw,14px);font-weight:700;padding:3px 8px;border-radius:20px;
+.tvln i{font-style:normal;font-weight:400;color:var(--tvdim);font-size:.6em;margin-left:5px}
+.tvchip{margin-left:auto;font-size:clamp(9px,.72vw,14px);font-weight:700;padding:4px 9px;border-radius:20px;
   display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
-.tvchip.run{background:rgba(237,111,0,.16);color:#FFA451}
-.tvchip.done{background:rgba(23,121,94,.18);color:#5FD3AE}
-.tvchip.wait{background:#1D2128;color:#79818B}
-.tvchip .ldot{background:#FFA451}
-.tvpart{font-size:clamp(11px,1.05vw,21px);font-weight:600;color:#DCE1E6;line-height:1.3;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tvpart i{font-style:normal;color:#767E88;font-weight:400}
+.tvchip.run{background:var(--tvrunbg);color:var(--tvrun)}
+.tvchip.done{background:var(--tvdonebg);color:var(--tvdone)}
+.tvchip.wait{background:var(--tvcard2);color:var(--tvdim);border:1px solid var(--tvline)}
+.tvchip .ldot{background:var(--tvrun)}
 .tvrow{display:flex;align-items:baseline;gap:clamp(6px,.8vw,16px);margin:clamp(3px,.4vw,8px) 0 clamp(4px,.5vw,10px)}
 .tvbig{font-size:clamp(26px,4.2vw,76px);font-weight:800;letter-spacing:-.05em;line-height:1;
   font-variant-numeric:tabular-nums}
-.tvratio{font-size:clamp(10px,.95vw,19px);color:#79818B;font-variant-numeric:tabular-nums;line-height:1.25}
-.tvratio b{color:#E6EAEE;font-weight:700;font-size:1.15em}
-.tvratio i{font-style:normal;display:block;font-size:.72em;color:#5A626B;margin-top:1px}
-.tvitems{flex:1;min-height:0;display:flex;flex-direction:column;gap:clamp(2px,.28vw,6px);
-  margin-top:clamp(5px,.6vw,11px);border-top:1px solid #23272E;padding-top:clamp(5px,.6vw,11px);overflow:hidden}
-.tvi{display:flex;align-items:center;gap:clamp(4px,.5vw,10px);font-size:clamp(9px,.8vw,16px);
-  font-variant-numeric:tabular-nums;color:#9AA2AB}
-.tvi .mk{width:1em;text-align:center;flex:none}
-.tvi.run .mk{color:#FFA451} .tvi.done .mk{color:#5FD3AE} .tvi.wait .mk{color:#5A626B}
-.tvi .no{font-weight:700;color:#DCE1E6;flex:none;min-width:5.2em}
-.tvi .bar{flex:1;height:clamp(4px,.42vw,8px);background:#242930;border-radius:99px;overflow:hidden;min-width:18px}
-.tvi .bar i{display:block;height:100%;border-radius:99px;background:var(--or)}
-.tvi.done .bar i{background:#22A47F} .tvi.wait .bar i{background:#3A4149}
-.tvi .q{flex:none;min-width:5.8em;text-align:right}
-.tvi .q b{color:#E6EAEE;font-weight:700}
-.tvi .p{flex:none;min-width:2.9em;text-align:right;font-weight:700;color:#E6EAEE}
-.tvmore{font-size:clamp(8.5px,.7vw,14px);color:#5A626B;text-align:center;padding-top:2px}
-.tvbig small{font-size:.38em;font-weight:600;color:#7E868F;margin-left:3px;letter-spacing:0}
-.tvbig.g{color:#5FD3AE}
-.tvb{height:clamp(6px,.7vw,14px);background:#242930;border-radius:99px;overflow:hidden;margin-bottom:clamp(5px,.6vw,11px)}
-.tvb i{display:block;height:100%;border-radius:99px;background:var(--or);transition:width .8s cubic-bezier(.2,.8,.2,1)}
-.tvb i.g{background:#22A47F}
-.tvn{display:flex;flex-wrap:wrap;gap:clamp(6px,.8vw,16px);font-size:clamp(9.5px,.82vw,16px);color:#79818B;
+.tvbig small{font-size:.38em;font-weight:600;color:var(--tvdim);margin-left:3px;letter-spacing:0}
+.tvbig.g{color:var(--tvdone)}
+.tvratio{font-size:clamp(10px,.95vw,19px);color:var(--tvmut);font-variant-numeric:tabular-nums;line-height:1.25}
+.tvratio b{color:var(--tvtx);font-weight:700;font-size:1.15em}
+.tvratio i{font-style:normal;display:block;font-size:.72em;color:var(--tvdim);margin-top:1px}
+.tvb{height:clamp(7px,.75vw,15px);background:var(--tvbar);border-radius:99px;overflow:hidden;margin-bottom:clamp(5px,.6vw,11px)}
+.tvb i{display:block;height:100%;border-radius:99px;background:var(--tvfill);transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.tvb i.g{background:var(--tvfillg)}
+.tvn{display:flex;flex-wrap:wrap;gap:clamp(6px,.8vw,16px);font-size:clamp(9.5px,.82vw,16px);color:var(--tvdim);
   font-variant-numeric:tabular-nums}
-.tvn b{color:#E6EAEE;font-weight:700}
-.tvn .r b{color:#FF7B6E}
+.tvn b{color:var(--tvtx);font-weight:700}
+.tvn .r b{color:var(--tvng)}
 .tvmini{margin-top:auto;display:grid;gap:clamp(3px,.35vw,7px)}
-.tvmr{display:flex;align-items:center;gap:7px;font-size:clamp(9px,.78vw,15px);color:#79818B;font-variant-numeric:tabular-nums}
-.tvmr .l{width:1.4em;font-weight:700;color:#B7BEC6;flex:none}
-.tvmr .bar{flex:1;height:clamp(4px,.45vw,9px);background:#242930;border-radius:99px;overflow:hidden}
-.tvmr .bar i{display:block;height:100%;background:var(--or);border-radius:99px}
-.tvmr .v{width:2.6em;text-align:right;color:#E6EAEE;font-weight:700;flex:none}
+.tvmr{display:flex;align-items:center;gap:7px;font-size:clamp(9px,.78vw,15px);color:var(--tvdim);font-variant-numeric:tabular-nums}
+.tvmr .l{width:1.4em;font-weight:700;color:var(--tvmut);flex:none}
+.tvmr .bar{flex:1;height:clamp(5px,.5vw,10px);background:var(--tvbar);border-radius:99px;overflow:hidden}
+.tvmr .bar i{display:block;height:100%;background:var(--tvfill);border-radius:99px}
+.tvmr .v{width:2.6em;text-align:right;color:var(--tvtx);font-weight:700;flex:none}
+
+.tvitems{flex:1;min-height:0;display:flex;flex-direction:column;
+  margin-top:clamp(5px,.6vw,11px);border-top:1px solid var(--tvline);padding-top:clamp(4px,.5vw,9px);overflow:hidden}
+.tvcols{display:grid;grid-template-columns:1fr 1fr;gap:0 clamp(8px,.9vw,20px);min-height:0;overflow:hidden}
+.tvcol{min-width:0;display:flex;flex-direction:column}
+.tvi,.tvih{display:grid;align-items:center;
+  grid-template-columns:1em minmax(0,1fr) minmax(0,4.4em) 3.2em 3.2em 3.2em 2.7em 3.5em;
+  gap:clamp(2px,.35vw,8px);font-size:clamp(8.5px,.76vw,16px);font-variant-numeric:tabular-nums}
+.tvitems.two .tvi,.tvitems.two .tvih{font-size:clamp(7px,.56vw,12.5px);
+  grid-template-columns:.9em minmax(0,1fr) minmax(0,3.6em) 2.8em 2.8em 2.8em 2.3em 3em;
+  gap:clamp(1px,.2vw,5px)}
+.tvih{font-size:clamp(7.5px,.6vw,13px);color:var(--tvhead);font-weight:600;
+  padding:0 .4em clamp(3px,.3vw,6px);border-bottom:1px solid var(--tvline);margin-bottom:clamp(2px,.25vw,5px)}
+.tvitems.two .tvih{font-size:clamp(6.5px,.48vw,11px)}
+.tvi{color:var(--tvmut);padding:clamp(2px,.26vw,6px) .4em;border-radius:5px}
+.tvi:nth-child(even){background:var(--tvzebra)}
+.tvi .mk,.tvih .mk{text-align:center}
+.tvi.run{background:var(--tvrunbg)}
+.tvi.run .mk{color:var(--tvrun)} .tvi.done .mk{color:var(--tvdone)} .tvi.wait .mk{color:var(--tvdim)}
+.tvi .no{font-weight:700;color:var(--tvtx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tvi .v,.tvih .v{text-align:right}
+.tvi .v{color:var(--tvtx);font-weight:700}
+.tvi .v.dim{color:var(--tvdim);font-weight:400}
+.tvi .v.ng,.tvi .v.bad{color:var(--tvng)}
+.tvi .col{display:flex;align-items:center;justify-content:flex-end;gap:.3em;overflow:hidden;
+  color:var(--tvmut);font-weight:500;white-space:nowrap;text-overflow:ellipsis}
+.tvi .sw{width:.72em;height:.72em;border-radius:2px;flex:none;border:1px solid rgba(128,128,128,.45)}
+.tvmore{font-size:clamp(8px,.66vw,13px);color:var(--tvdim);text-align:center;padding-top:3px}
+.tvnone{font-size:12px;color:var(--tvdim);padding:12px 0 4px;text-align:center}
 .tvbtn{width:100%;border:1px solid var(--line2);background:var(--card);color:var(--ink);border-radius:11px;
   padding:13px;font-weight:600;cursor:pointer;margin-bottom:12px;line-height:1.25}
 .tvbtn:active{background:var(--bg)}
@@ -516,6 +542,7 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
     <div class="mk">NKU</div>
     <h2>도장 생산현황 <i>Estado de producción</i></h2>
     <div class="tvclock" id="tvClock">--:--</div>
+    <button class="tvx" onclick="tvTheme()" id="tvThemeBtn">밝게 · Claro</button>
     <button class="tvx" onclick="closeTV()">닫기 · Salir</button>
   </div>
   <div class="tvgrid" id="tvGrid"></div>
@@ -570,6 +597,13 @@ let PLANS=[
  {id:1,seq:1,line:"1",shift:"A",no:"A-1023",qty:600},
  {id:2,seq:2,line:"1",shift:"A",no:"C-1005",qty:400},
  {id:3,seq:3,line:"1",shift:"A",no:"F-1003",qty:300},
+ {id:20,seq:4,line:"1",shift:"A",no:"A-2210",qty:250},
+ {id:21,seq:5,line:"1",shift:"A",no:"B-1140",qty:180},
+ {id:22,seq:6,line:"1",shift:"A",no:"C-2418",qty:420},
+ {id:23,seq:7,line:"1",shift:"A",no:"D-4407",qty:360},
+ {id:24,seq:8,line:"1",shift:"A",no:"E-2201",qty:200},
+ {id:25,seq:9,line:"1",shift:"A",no:"G-2205",qty:150},
+ {id:26,seq:10,line:"1",shift:"A",no:"J-3010",qty:280},
  {id:4,seq:1,line:"2",shift:"A",no:"B-3302",qty:350},
  {id:5,seq:2,line:"2",shift:"A",no:"E-2201",qty:220},
  {id:6,seq:1,line:"3",shift:"A",no:"D-1120",qty:500},
@@ -586,6 +620,10 @@ let PLANS=[
 let RESULTS=[
  {pid:1,st:"07:40",in:550,ok:546,ng:4,cm:"",inBy:"박성우",inAt:"07:42",resBy:"Ana Ruiz",resAt:"11:20"},
  {pid:2,st:"08:20",in:150,ok:0,ng:0,cm:"",inBy:"Luis Mora",inAt:"08:20",resBy:null,resAt:null},
+ {pid:20,st:"07:20",in:250,ok:244,ng:6,cm:"",inBy:"박성우",inAt:"07:22",resBy:"박성우",resAt:"09:10"},
+ {pid:21,st:"08:00",in:180,ok:180,ng:0,cm:"",inBy:"박성우",inAt:"08:01",resBy:"박성우",resAt:"09:40"},
+ {pid:22,st:"09:00",in:420,ok:401,ng:19,cm:"흐름 불량",inBy:"Ana Ruiz",inAt:"09:02",resBy:"Ana Ruiz",resAt:"11:00"},
+ {pid:23,st:"10:10",in:200,ok:0,ng:0,cm:"",inBy:"박성우",inAt:"10:10",resBy:null,resAt:null},
  {pid:4,st:"06:50",in:350,ok:347,ng:3,cm:"",inBy:"Ana Ruiz",inAt:"06:52",resBy:"Ana Ruiz",resAt:"10:05"},
  {pid:6,st:"09:50",in:0,ok:0,ng:0,cm:"",inBy:"Juan Pérez",inAt:"09:50",resBy:null,resAt:null},
  {pid:7,st:"06:40",in:350,ok:348,ng:2,cm:"",inBy:"Juan Pérez",inAt:"06:42",resBy:"Juan Pérez",resAt:"09:30"},
@@ -1034,10 +1072,22 @@ function openTV(){
   $("tv").classList.remove("hide");
   document.body.style.overflow="hidden";
   if(location.hash!=="#tv") history.replaceState(null,"","#tv");
+  try{ tvThemeInit(); }catch(e){}
   renderTV();
   tvTimer=setInterval(renderTV,60000);
   const el=document.documentElement;
   if(el.requestFullscreen) el.requestFullscreen().catch(()=>{});
+}
+function tvTheme(){
+  const light=$("tv").classList.toggle("light");
+  const b=$("tvThemeBtn"); if(b) b.textContent = light ? "어둡게 · Oscuro" : "밝게 · Claro";
+  try{ localStorage.setItem("tvLight", light?"1":"0"); }catch(e){}
+}
+function tvThemeInit(){
+  let light=false;
+  try{ light = localStorage.getItem("tvLight")==="1"; }catch(e){}
+  $("tv").classList.toggle("light",light);
+  const b=$("tvThemeBtn"); if(b) b.textContent = light ? "어둡게 · Oscuro" : "밝게 · Claro";
 }
 function closeTV(){
   $("tv").classList.add("hide");
@@ -1062,21 +1112,39 @@ function renderTV(){
 
   const MK={run:"\u25CF",done:"\u2713",wait:"\u25CB"};
   const ORD={run:0,done:1,wait:2};
-  const LIMIT=5;
+  const LIMIT=8;
   const tiles=lineData.map(d=>{
     const lbl={run:"투입중 · En proceso",done:"생산종료 · Terminado",wait:"대기 · Sin iniciar"}[d.k];
     const sorted=d.ps.slice().sort((x,y)=>ORD[state(x.id)]-ORD[state(y.id)]||x.seq-y.seq);
-    const rows=sorted.slice(0,LIMIT).map(p=>{
-      const P=part(p.no), x=acc(p.id), k=state(p.id);
-      const ip=p.qty?Math.min(100,Math.round(x.o/p.qty*100)):0;
+    const two = sorted.length > 8;                       // 품목이 많으면 2열로 쪼갠다
+    const LIMIT = two ? 16 : 8;
+    const shown = sorted.slice(0,LIMIT);
+    const line = p=>{
+      const P=part(p.no), r=res(p.id), x=acc(p.id), k=state(p.id);
+      const dr = x.i ? (x.n/x.i*100) : null;
       return `<div class="tvi ${k}"><span class="mk">${MK[k]}</span>
         <span class="no">${p.no}</span>
-        <span class="bar"><i style="width:${ip}%"></i></span>
-        <span class="q"><b>${x.o.toLocaleString()}</b>/${(p.qty||0).toLocaleString()}</span>
-        <span class="p">${ip}%</span></div>`;
-    }).join("");
+        <span class="col"><i class="sw" style="background:${dotColor(P.c)}"></i>${cname(P.c)}</span>
+        <span class="v dim">${(p.qty||0).toLocaleString()}</span>
+        <span class="v">${x.i.toLocaleString()}</span>
+        <span class="v">${x.o.toLocaleString()}</span>
+        <span class="v ${x.n>0?"ng":"dim"}">${x.n.toLocaleString()}</span>
+        <span class="v ${dr!==null&&dr>3?"bad":""}">${dr===null?"—":dr.toFixed(1)+"%"}</span></div>`;
+    };
+    const head=`<div class="tvih"><span class="mk"></span><span>품번 · Parte</span>
+      <span class="v">컬러</span><span class="v">계획</span><span class="v">투입</span>
+      <span class="v">OK</span><span class="v">NG</span><span class="v">불량율</span></div>`;
     const more=sorted.length>LIMIT?`<div class="tvmore">외 ${sorted.length-LIMIT}품목 · +${sorted.length-LIMIT} más</div>`:"";
-    const body=sorted.length?rows+more:`<div class="tvmore">계획 없음 · Sin plan</div>`;
+    let body;
+    if(!sorted.length){ body=`<div class="tvmore">계획 없음 · Sin plan</div>`; }
+    else if(two){
+      const h=Math.ceil(shown.length/2);
+      body=`<div class="tvcols">
+        <div class="tvcol">${head}${shown.slice(0,h).map(line).join("")}</div>
+        <div class="tvcol">${head}${shown.slice(h).map(line).join("")}</div></div>${more}`;
+    }else{
+      body=head+shown.map(line).join("")+more;
+    }
     return `<div class="tvt ${d.k}">
       <div class="tvth"><span class="tvln">${d.L}<i>번라인 · Línea ${d.L}</i></span>
         <span class="tvchip ${d.k}">${d.k==="run"?'<i class="ldot"></i>':""}${lbl}</span></div>
@@ -1087,7 +1155,7 @@ function renderTV(){
       <div class="tvn"><span>투입 <b>${d.a.i.toLocaleString()}</b></span>
         <span class="r">NG <b>${d.a.n}</b></span>
         <span>직행율 <b>${d.f===null?"—":d.f.toFixed(1)+"%"}</b></span></div>
-      <div class="tvitems">${body}</div>
+      <div class="tvitems ${two?"two":""}">${body}</div>
     </div>`;
   }).join("");
 
