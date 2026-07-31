@@ -473,6 +473,8 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
     </div>
   </header>
 
+  <div class="wrap"><div id="loadBar" class="okbox hide" style="margin-top:10px"></div></div>
+
   <section id="v-home" class="wrap">
     <div class="card pad selbar">
       <label class="f" style="margin:0;flex:1;min-width:9.5em"><span>일자<i class="es">Fecha</i></span>
@@ -611,6 +613,7 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
     </div>
 
     <div class="sec"><h2>마스터 개별등록<i class="es">Agregar una parte</i></h2></div>
+    <p class="note" id="mCount" style="margin:0 0 8px 2px;font-weight:600;color:var(--or-d)"></p>
     <div class="card pad" style="margin-bottom:12px">
       <label class="f"><span>차종<i class="es">Modelo de vehículo</i></span>
         <input class="i" id="mVh" placeholder="예 / ej. CN7, SU2"></label>
@@ -775,7 +778,7 @@ let PARTS=[], PLANS=[], RESULTS=[], WORKERS={}, STAFF=[];
 const today = () => new Date().toISOString().slice(0,10);
 
 let USER=null, curLine=null, curPlan=null, curRes=null, searchMode="plan", view="home", seq=100;
-const BUILD="2026-07-31-15";
+const BUILD="2026-07-31-18";
 const $=id=>document.getElementById(id);
 const part=no=>PARTS.find(p=>p.no===no)||{no,nm:"—",c:"BK",sp:"",vh:""};
 const res=pid=>RESULTS.find(r=>r.pid===pid)||null;
@@ -914,23 +917,55 @@ async function logout(ev){
 /* ═══ 데이터 로드 ═══ */
 async function loadAll(){
   const [pa,pl,rs,wk]=await Promise.all([
-    sb.from("parts").select("*").eq("active",true),
+    sb.from("parts").select("*"),
     sb.from("plans").select("*").gte("work_date",YESTERDAY).order("work_date").order("line_id").order("seq"),
     sb.from("results").select("*"),
     sb.from("workers").select("*").order("created_at")
   ]);
-  if(pa.error||pl.error||rs.error) return toast("데이터 조회 실패 · Error al cargar");
-  PARTS=(pa.data||[]).map(x=>({no:x.part_no,nm:x.name||x.part_no,c:x.color||"BK",sp:x.spec||"",vh:x.vehicle||""}));
-  PLANS=(pl.data||[]).map(x=>({id:x.id,date:x.work_date,seq:x.seq,line:x.line_id,shift:x.shift,no:x.part_no,qty:x.plan_qty,adhoc:x.is_adhoc}));
-  STAFF=(wk.data||[]); WORKERS={}; STAFF.forEach(w=>WORKERS[w.id]=w.name);
+
+  // 하나가 실패해도 나머지는 살린다. 실패 사유는 화면에 남긴다.
+  const errs=[];
+  if(pa.error) errs.push("품번 · Partes: "+pa.error.message);
+  if(pl.error) errs.push("계획 · Planes: "+pl.error.message);
+  if(rs.error) errs.push("실적 · Resultados: "+rs.error.message);
+  if(wk.error) errs.push("작업자 · Personal: "+wk.error.message);
+
+  if(!pa.error){
+    PARTS=(pa.data||[]).filter(x=>x.active!==false)
+      .map(x=>({no:x.part_no,nm:x.name||x.part_no,c:x.color||"BK",sp:x.spec||"",vh:x.vehicle||""}));
+  }
+  if(!pl.error){
+    PLANS=(pl.data||[]).map(x=>({id:x.id,date:x.work_date,seq:x.seq,line:x.line_id,
+      shift:x.shift,no:x.part_no,qty:x.plan_qty,adhoc:x.is_adhoc}));
+  }
+  if(!wk.error){ STAFF=(wk.data||[]); WORKERS={}; STAFF.forEach(w=>WORKERS[w.id]=w.name); }
+
   const nm=id=>WORKERS[id]||"—";
   const hm=t=>t?String(t).slice(0,5):"";
-  RESULTS=(rs.data||[]).filter(x=>PLANS.some(p=>p.id===x.plan_id)).map(x=>({
-    id:x.id,pid:x.plan_id,st:hm(x.started_at),in:x.input_qty,ok:x.ok_qty,ng:x.ng_qty,cm:x.comment||"",
-    inBy:nm(x.input_by),inAt:hm(x.input_at?new Date(x.input_at).toTimeString():""),
-    resBy:x.result_by?nm(x.result_by):null,
-    resAt:x.result_at?new Date(x.result_at).toTimeString().slice(0,5):null}));
+  if(!rs.error){
+    RESULTS=(rs.data||[]).filter(x=>PLANS.some(p=>p.id===x.plan_id)).map(x=>({
+      id:x.id,pid:x.plan_id,st:hm(x.started_at),in:x.input_qty,ok:x.ok_qty,ng:x.ng_qty,cm:x.comment||"",
+      inBy:nm(x.input_by),inAt:hm(x.input_at?new Date(x.input_at).toTimeString():""),
+      resBy:x.result_by?nm(x.result_by):null,
+      resAt:x.result_at?new Date(x.result_at).toTimeString().slice(0,5):null}));
+  }
+
+  showLoadState(errs);
   render(); if(tvTimer) renderTV();
+}
+
+/* 조회 상태를 화면 상단에 남긴다 (사라지지 않음) */
+function showLoadState(errs){
+  const bar=$("loadBar"); if(!bar) return;
+  if(errs && errs.length){
+    bar.className="err";
+    bar.innerHTML="데이터 조회 실패 · Error al cargar<br>"+errs.join("<br>");
+    bar.classList.remove("hide");
+  }else{
+    bar.className="okbox";
+    bar.innerHTML=`품번 <b>${PARTS.length}</b> · 계획 <b>${PLANS.length}</b> · 실적 <b>${RESULTS.length}</b> · 작업자 <b>${STAFF.length}</b>`;
+    bar.classList.remove("hide");
+  }
 }
 
 /* ═══ 실시간 구독 ═══ */
@@ -1158,6 +1193,7 @@ function renderDash(){
 }
 
 function renderMaster(){
+  const c=$("mCount"); if(c) c.textContent=`서버에 저장된 품번 ${PARTS.length}건`;
   $("masterList").innerHTML=[...PARTS].sort((a,b)=>a.no.localeCompare(b.no)).map(p=>
     `<div class="mrow"><span class="dot" style="background:${dotColor(p.c)}"></span>
       <span class="vh">${p.vh||"-"}</span>
@@ -1408,12 +1444,15 @@ function impPart(inp){
     inp.value="";
     if(!payload.length) return report("partRep",[`등록할 행이 없다 · Sin filas válidas`,
       err.length?`오류 ${err.length}건 — ${err.slice(0,3).join(" / ")}`:""].filter(Boolean));
-    const {error}=await sb.from("parts").upsert(payload,{onConflict:"part_no"});
-    if(error) return report("partRep",[`업로드 실패 · Error: ${error.message}`]);
+    const {data,error}=await sb.from("parts").upsert(payload,{onConflict:"part_no"}).select();
+    if(error) return reportRed("partRep",`업로드 실패 · Error<br>${error.message}`);
+    if(!data || !data.length) return reportRed("partRep",
+      "서버가 한 건도 저장하지 않았다. 관리자 권한(RLS)을 확인해라.<br>El servidor no guardó nada — revisa permisos.");
     await loadAll();
-    report("partRep",[`등록·갱신 <b>${payload.length}건</b> · Cargados`,
+    report("partRep",[`서버 저장 <b>${data.length}건</b> · Guardados en el servidor`,
+      `현재 마스터 <b>${PARTS.length}건</b> · Total en el maestro`,
       err.length?`오류 ${err.length}건 — ${err.slice(0,3).join(" / ")}${err.length>3?" …":""}`:""].filter(Boolean));
-    toast(`마스터 ${payload.length}건 반영 · ${payload.length} cargados`);
+    toast(`서버에 ${data.length}건 저장 · ${data.length} guardados`);
   };
   rd.readAsText(f,"utf-8");
 }
@@ -1449,11 +1488,13 @@ function impPlan(inp){
     inp.value="";
     if(!payload.length) return report("planRep",[`등록할 행이 없다 · Sin filas válidas`,
       err.length?`오류 ${err.length}건 — ${err.slice(0,3).join(" / ")}`:""].filter(Boolean));
-    const {error}=await sb.from("plans").insert(payload);
-    if(error) return report("planRep",[`업로드 실패 · Error: ${error.message}`]);
+    const {data,error}=await sb.from("plans").insert(payload).select();
+    if(error) return reportRed("planRep",`업로드 실패 · Error<br>${error.message}`);
+    if(!data || !data.length) return reportRed("planRep",
+      "서버가 한 건도 저장하지 않았다. 관리자 권한(RLS)을 확인해라.<br>El servidor no guardó nada — revisa permisos.");
     await loadAll();
     const days=[...new Set(payload.map(x=>x.work_date))].sort();
-    report("planRep",[`등록 <b>${payload.length}건</b> · ${days.map(dLabel).join(", ")}`,
+    report("planRep",[`서버 저장 <b>${data.length}건</b> · ${days.map(dLabel).join(", ")}`,
       err.length?`오류 ${err.length}건 — ${err.slice(0,3).join(" / ")}${err.length>3?" …":""}`:""].filter(Boolean));
     toast(`계획 ${payload.length}건 등록 · ${payload.length} planes`);
   };
@@ -1515,10 +1556,11 @@ async function addPart(){
   const no=$("mNo").value.trim().toUpperCase();
   if(!no) return toast("품번을 입력해라 · Ingresa el número de parte");
   if(PARTS.some(p=>p.no===no)) return toast("이미 등록된 품번 · Ya existe");
-  const {error}=await sb.from("parts").insert({vehicle:$("mVh").value.trim().toUpperCase()||null,
+  const {data,error}=await sb.from("parts").insert({vehicle:$("mVh").value.trim().toUpperCase()||null,
     part_no:no,name:$("mNm").value.trim()||no,
-    color:$("mCol").value.trim().toUpperCase()||null,spec:$("mSp").value.trim()||null});
+    color:$("mCol").value.trim().toUpperCase()||null,spec:$("mSp").value.trim()||null}).select();
   if(error) return toast("실패 · Error: "+error.message);
+  if(!data || !data.length) return reportRed("partRep","서버가 저장하지 않았다 — 권한(RLS) 확인 필요");
   ["mVh","mNo","mNm","mSp"].forEach(i=>$(i).value=""); await loadAll();
   toast("마스터 추가 완료 · Agregado al maestro");
 }
