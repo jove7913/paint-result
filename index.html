@@ -778,7 +778,7 @@ let PARTS=[], PLANS=[], RESULTS=[], WORKERS={}, STAFF=[];
 const today = () => new Date().toISOString().slice(0,10);
 
 let USER=null, curLine=null, curPlan=null, curRes=null, searchMode="plan", view="home", seq=100;
-const BUILD="2026-07-31-18";
+const BUILD="2026-07-31-19";
 const $=id=>document.getElementById(id);
 const part=no=>PARTS.find(p=>p.no===no)||{no,nm:"—",c:"BK",sp:"",vh:""};
 const res=pid=>RESULTS.find(r=>r.pid===pid)||null;
@@ -902,6 +902,7 @@ async function afterLogin(){
   const d=new Date(); $("dToday").textContent=`${d.getMonth()+1}/${d.getDate()}`;
   ["t-plan","t-master","t-staff"].forEach(t=>$(t).classList.toggle("hide",!USER.admin));
   ["pDate","pvDate"].forEach(i=>{ const el=$(i); if(el) el.value=TODAY; });
+  await sb.auth.getSession();          // 토큰이 붙은 뒤에 조회한다
   await loadAll();
   SEL=autoSelSmart(); selApply(); render();
   subscribe();
@@ -915,7 +916,7 @@ async function logout(ev){
 }
 
 /* ═══ 데이터 로드 ═══ */
-async function loadAll(){
+async function loadAll(retry=true){
   const [pa,pl,rs,wk]=await Promise.all([
     sb.from("parts").select("*"),
     sb.from("plans").select("*").gte("work_date",YESTERDAY).order("work_date").order("line_id").order("seq"),
@@ -950,22 +951,31 @@ async function loadAll(){
       resAt:x.result_at?new Date(x.result_at).toTimeString().slice(0,5):null}));
   }
 
+  // 로그인 직후 인증 토큰이 붙기 전에 조회가 나가면 오류 없이 빈 결과가 온다.
+  // 그런 경우 잠시 뒤 한 번 더 읽는다.
+  if(retry && !pa.error && (pa.data||[]).length===0){
+    showLoadState(errs, "다시 읽는 중 · Reintentando…");
+    await new Promise(r=>setTimeout(r,900));
+    return loadAll(false);
+  }
+
   showLoadState(errs);
   render(); if(tvTimer) renderTV();
 }
 
 /* 조회 상태를 화면 상단에 남긴다 (사라지지 않음) */
-function showLoadState(errs){
+function showLoadState(errs, note){
   const bar=$("loadBar"); if(!bar) return;
+  const btn=` <button class="sbtn" type="button" onclick="loadAll(false)" style="margin-left:8px">다시 불러오기</button>`;
   if(errs && errs.length){
     bar.className="err";
-    bar.innerHTML="데이터 조회 실패 · Error al cargar<br>"+errs.join("<br>");
-    bar.classList.remove("hide");
+    bar.innerHTML="데이터 조회 실패 · Error al cargar<br>"+errs.join("<br>")+btn;
   }else{
     bar.className="okbox";
-    bar.innerHTML=`품번 <b>${PARTS.length}</b> · 계획 <b>${PLANS.length}</b> · 실적 <b>${RESULTS.length}</b> · 작업자 <b>${STAFF.length}</b>`;
-    bar.classList.remove("hide");
+    bar.innerHTML=`품번 <b>${PARTS.length}</b> · 계획 <b>${PLANS.length}</b> · 실적 <b>${RESULTS.length}</b> · 작업자 <b>${STAFF.length}</b>`
+      + (note?` — ${note}`:` <span style="color:var(--ink3)">${now()}</span>`) + btn;
   }
+  bar.classList.remove("hide");
 }
 
 /* ═══ 실시간 구독 ═══ */
