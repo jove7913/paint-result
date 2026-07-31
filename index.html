@@ -778,7 +778,7 @@ let PARTS=[], PLANS=[], RESULTS=[], WORKERS={}, STAFF=[];
 const today = () => new Date().toISOString().slice(0,10);
 
 let USER=null, curLine=null, curPlan=null, curRes=null, searchMode="plan", view="home", seq=100;
-const BUILD="2026-07-31-19";
+const BUILD="2026-07-31-20";
 const $=id=>document.getElementById(id);
 const part=no=>PARTS.find(p=>p.no===no)||{no,nm:"—",c:"BK",sp:"",vh:""};
 const res=pid=>RESULTS.find(r=>r.pid===pid)||null;
@@ -916,7 +916,7 @@ async function logout(ev){
 }
 
 /* ═══ 데이터 로드 ═══ */
-async function loadAll(retry=true){
+async function loadAll(retry=2){
   const [pa,pl,rs,wk]=await Promise.all([
     sb.from("parts").select("*"),
     sb.from("plans").select("*").gte("work_date",YESTERDAY).order("work_date").order("line_id").order("seq"),
@@ -953,10 +953,10 @@ async function loadAll(retry=true){
 
   // 로그인 직후 인증 토큰이 붙기 전에 조회가 나가면 오류 없이 빈 결과가 온다.
   // 그런 경우 잠시 뒤 한 번 더 읽는다.
-  if(retry && !pa.error && (pa.data||[]).length===0){
+  if(retry>0 && !pa.error && (pa.data||[]).length===0){
     showLoadState(errs, "다시 읽는 중 · Reintentando…");
-    await new Promise(r=>setTimeout(r,900));
-    return loadAll(false);
+    await new Promise(r=>setTimeout(r, retry===2 ? 700 : 1500));
+    return loadAll(retry-1);
   }
 
   showLoadState(errs);
@@ -966,7 +966,7 @@ async function loadAll(retry=true){
 /* 조회 상태를 화면 상단에 남긴다 (사라지지 않음) */
 function showLoadState(errs, note){
   const bar=$("loadBar"); if(!bar) return;
-  const btn=` <button class="sbtn" type="button" onclick="loadAll(false)" style="margin-left:8px">다시 불러오기</button>`;
+  const btn=` <button class="sbtn" type="button" onclick="loadAll(0)" style="margin-left:8px">다시 불러오기</button>`;
   if(errs && errs.length){
     bar.className="err";
     bar.innerHTML="데이터 조회 실패 · Error al cargar<br>"+errs.join("<br>")+btn;
@@ -976,6 +976,13 @@ function showLoadState(errs, note){
       + (note?` — ${note}`:` <span style="color:var(--ink3)">${now()}</span>`) + btn;
   }
   bar.classList.remove("hide");
+}
+
+/* 로그인 토큰이 늦게 붙는 경우 대비 */
+if(sb){
+  sb.auth.onAuthStateChange((ev)=>{
+    if(ev==="SIGNED_IN" && USER && !PARTS.length) loadAll(1);
+  });
 }
 
 /* ═══ 실시간 구독 ═══ */
@@ -1004,6 +1011,12 @@ function go(v){
   $("btnBack").classList.toggle("hide",!deep); $("brand").classList.toggle("hide",deep);
   $("barTitle").innerHTML=`${TITLES[v][0]} <i class="es">${TITLES[v][1]}</i>`;
   window.scrollTo(0,0); render();
+  // 자료가 비어 있으면 눌러서 새로고침하지 않아도 알아서 다시 읽는다
+  if(sb && USER){
+    if((v==="master" || v==="plan") && !PARTS.length) loadAll(1);
+    else if(v==="staff" && !STAFF.length) reloadStaff();
+    else if((v==="home"||v==="line"||v==="dash") && !PLANS.length && !PARTS.length) loadAll(1);
+  }
 }
 function back(){ view==="detail"?go("line"):go("home"); }
 
@@ -1203,7 +1216,9 @@ function renderDash(){
 }
 
 function renderMaster(){
-  const c=$("mCount"); if(c) c.textContent=`서버에 저장된 품번 ${PARTS.length}건`;
+  const c=$("mCount"); if(c) c.textContent = PARTS.length
+    ? `서버에 저장된 품번 ${PARTS.length}건`
+    : "품번을 불러오는 중… · Cargando…";
   $("masterList").innerHTML=[...PARTS].sort((a,b)=>a.no.localeCompare(b.no)).map(p=>
     `<div class="mrow"><span class="dot" style="background:${dotColor(p.c)}"></span>
       <span class="vh">${p.vh||"-"}</span>
@@ -1362,6 +1377,11 @@ function renderStaff(){
         <span class="es">No hay solicitudes pendientes</span>
         <span class="es" style="margin-top:6px">가입했는데 여기 안 보이면 목록 새로고침을 눌러봐라</span></div>`;
 
+  if(!STAFF.length){
+    $("staffWait").innerHTML=`<div class="empty"><strong>불러오는 중…</strong><span class="es">Cargando…</span></div>`;
+    $("staffList").innerHTML=`<div class="empty"><strong>불러오는 중…</strong><span class="es">Cargando…</span></div>`;
+    return;
+  }
   $("staffList").innerHTML = ok.length ? ok.map(w=>{
     const me=w.id===USER.id, adm=w.role==="admin";
     return `<div class="srow"><div class="av ${adm?'adm':''}">${(w.name||"?").trim()[0]}</div>
