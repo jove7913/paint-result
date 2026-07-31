@@ -443,8 +443,8 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
   <section id="v-master" class="wrap hide">
     <div class="sec"><h2>마스터 일괄등록<i class="es">Carga masiva del maestro</i></h2></div>
     <div class="card pad" style="margin-bottom:14px">
-      <p class="note" style="margin:0 0 11px">양식은 <b>품번 · 품명 · 컬러 · 도장사양</b> 네 칸이다. 품명은 영문 하나만, 컬러는 BK / SL / GY / WH.
-        <span class="es">Cuatro columnas. El color debe ser BK, SL, GY o WH.</span></p>
+      <p class="note" style="margin:0 0 11px">양식은 <b>품번 · 품명 · 컬러 · 도장사양</b> 네 칸이다. 컬러 코드는 자유롭게 쓰면 된다.
+        <span class="es">Cuatro columnas. El código de color es libre.</span></p>
       <div class="bulk">
         <button class="btn ghost sm" onclick="tplPart()">양식 내려받기<i class="es">Plantilla</i></button>
         <button class="btn ghost sm" onclick="$('upPart').click()">양식 업로드<i class="es">Subir CSV</i></button>
@@ -459,10 +459,8 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
         <input class="i" id="mNo" placeholder="A-1023"></label>
       <label class="f"><span>품명<i class="es">Description</i></span>
         <input class="i" id="mNm" placeholder="Door clip"></label>
-      <label class="f"><span>컬러<i class="es">Color</i></span>
-        <select class="i" id="mCol">
-          <option value="BK">BK 흑색 · Negro</option><option value="SL">SL 은색 · Plata</option>
-          <option value="GY">GY 회색 · Gris</option><option value="WH">WH 백색 · Blanco</option></select></label>
+      <label class="f"><span>컬러 코드<i class="es">Código de color</i></span>
+        <input class="i" id="mCol" placeholder="예 / ej. BK, WH, 8P4, NH-731P"></label>
       <label class="f"><span>도장사양<i class="es">Especificación de pintura</i></span>
         <input class="i" id="mSp" placeholder="예 / ej. 2C1B 유광 · 2 capas brillante"></label>
       <button class="btn" onclick="addPart()">마스터 추가<i class="es">Agregar al maestro</i></button>
@@ -526,8 +524,30 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
 <div class="toast" id="toast"></div>
 
 <script>
-const COLORS={BK:{h:"#24282C",kr:"흑색",es:"Negro"},SL:{h:"#B9BEC4",kr:"은색",es:"Plata"},
-              GY:{h:"#7E858C",kr:"회색",es:"Gris"},WH:{h:"#EFF0F2",kr:"백색",es:"Blanco"}};
+/* 컬러 코드는 자유 입력이다. 아래는 자주 쓰는 코드의 표시색이고,
+   목록에 없는 코드는 글자에서 고정된 색을 만들어 점으로 보여준다. */
+const COLOR_MAP={
+  BK:"#24282C", BLK:"#24282C", BLACK:"#24282C",
+  WH:"#EFF0F2", WHT:"#EFF0F2", WHITE:"#EFF0F2",
+  SL:"#B9BEC4", SLV:"#B9BEC4", SILVER:"#B9BEC4",
+  GY:"#7E858C", GRY:"#7E858C", GRAY:"#7E858C", GREY:"#7E858C",
+  RD:"#C4342B", RED:"#C4342B",
+  BL:"#2C5FA8", BLU:"#2C5FA8", BLUE:"#2C5FA8",
+  GR:"#2E7D4F", GRN:"#2E7D4F", GREEN:"#2E7D4F",
+  YL:"#DDAE18", YEL:"#DDAE18", YELLOW:"#DDAE18",
+  BR:"#7A5238", BRN:"#7A5238", BROWN:"#7A5238",
+  IV:"#E6DEC8", IVORY:"#E6DEC8",
+  OR:"#E07A1F", ORG:"#E07A1F", ORANGE:"#E07A1F",
+  CL:"#DCE3EA", CLEAR:"#DCE3EA", NA:"#C9CFD6"
+};
+function dotColor(code){
+  const k=String(code||"").trim().toUpperCase();
+  if(!k) return "#C9CFD6";
+  if(COLOR_MAP[k]) return COLOR_MAP[k];
+  let h=0; for(let i=0;i<k.length;i++) h=(h*31+k.charCodeAt(i))%360;
+  return `hsl(${h},42%,55%)`;
+}
+const cname = c => String(c||"").trim().toUpperCase() || "—";
 
 let PARTS=[
  {no:"A-1023",nm:"Clip de puerta",c:"BK",sp:"1C1B 무광 · 1 capa mate"},
@@ -673,7 +693,7 @@ function renderPlans(){
     return `<div class="plan ${k==="done"?'done':''}">
       <div class="seqn">${String(p.seq).padStart(2,"0")}</div>
       <div class="pbody" onclick="openPlan(${p.id})">
-        <div class="ph"><span class="dot" style="background:${COLORS[P.c].h}"></span>
+        <div class="ph"><span class="dot" style="background:${dotColor(P.c)}"></span>
           <div class="pn">${p.no}<i class="es">${P.nm}</i></div></div>
         <div style="margin:6px 0">${chip(k)}</div>
         <div class="nums"><span>계획 <b>${p.qty}</b></span><span>투입 <b>${a.i}</b></span>
@@ -699,9 +719,9 @@ function openPlan(id){curPlan=PLANS.find(p=>p.id===id);go("detail");}
 function renderDetail(){
   const p=curPlan, P=part(p.no), r=res(p.id), k=state(p.id); curRes=r;
   $("detHead").innerHTML=`
-    <div class="t"><span class="dot" style="background:${COLORS[P.c].h}"></span>
+    <div class="t"><span class="dot" style="background:${dotColor(P.c)}"></span>
       <h2>${p.no}</h2><span class="tag">${p.line}번라인 ${p.shift}조</span></div>
-    <div class="es" style="margin-top:4px">${P.nm} — ${COLORS[P.c].kr} / ${COLORS[P.c].es}</div>
+    <div class="es" style="margin-top:4px">${P.nm} — 컬러 ${cname(P.c)}</div>
     <div class="es" style="margin-top:3px;color:var(--or-d)">도장사양 · Especificación — ${P.sp||"미등록"}</div>
     <div style="margin-top:9px">${chip(k)}</div>
     <div class="meta">
@@ -788,7 +808,7 @@ function renderDash(){
       const P=part(p.no), r=res(p.id), x=acc(p.id), k=state(p.id);
       const ip=p.qty?Math.min(100,Math.round(x.o/p.qty*100)):0, f=ftt(r);
       return `<div class="ditem">
-        <div class="dtop"><span class="dot" style="background:${COLORS[P.c].h}"></span>
+        <div class="dtop"><span class="dot" style="background:${dotColor(P.c)}"></span>
           <span class="dno">${p.no}</span><span class="dnm">${P.nm}</span>
           <span class="dpct ${ip>=100?'g':''}">${ip}%</span></div>
         <div style="margin:0 0 6px">${chip(k)}</div>
@@ -815,9 +835,9 @@ function renderDash(){
 
 function renderMaster(){
   $("masterList").innerHTML=[...PARTS].sort((a,b)=>a.no.localeCompare(b.no)).map(p=>
-    `<div class="mrow"><span class="dot" style="background:${COLORS[p.c].h}"></span>
+    `<div class="mrow"><span class="dot" style="background:${dotColor(p.c)}"></span>
       <span class="no">${p.no}</span>
-      <span class="nm">${p.nm}<i>${COLORS[p.c].kr} / ${COLORS[p.c].es} — ${p.sp||"사양 미등록"}</i></span>
+      <span class="nm">${p.nm}<i>컬러 ${cname(p.c)} — ${p.sp||"사양 미등록"}</i></span>
       <button class="sbtn off" onclick="delPart('${p.no}')">삭제</button></div>`).join("");
 }
 function renderPlanAdmin(){
@@ -899,7 +919,7 @@ function report(el,lines){ const e=$(el); e.innerHTML=lines.join("<br>"); e.clas
 function tplPart(){
   dl("마스터_양식.csv",[["품번 / Part No","품명 / Description","컬러 / Color","도장사양 / Spec"],
     ["A-1023","Door clip","BK","1C1B mate"],
-    ["B-3302","Nozzle ring","GY","2C1B semi-gloss"]]);
+    ["B-3302","Nozzle ring","NH-731P","2C1B semi-gloss"]]);
   toast("양식 내려받기 · Plantilla descargada");
 }
 function impPart(inp){
@@ -911,11 +931,10 @@ function impPart(inp){
     let add=0,dup=0,err=[];
     rows.forEach((r,k)=>{
       const no=(r[0]||"").trim().toUpperCase();
-      const c=(r[3]||"").trim().toUpperCase();
+      const c=(r[2]||"").trim().toUpperCase();
       if(!no){err.push(`${k+2}행 품번 없음`);return;}
-      if(!COLORS[c]){err.push(`${k+2}행 컬러 오류 (${r[3]||"공백"})`);return;}
       if(PARTS.some(p=>p.no===no)){dup++;return;}
-      PARTS.push({no,kr:(r[1]||"").trim()||no,es:(r[2]||"").trim()||no,c,sp:(r[4]||"").trim()});
+      PARTS.push({no,nm:(r[1]||"").trim()||no,c,sp:(r[3]||"").trim()});
       add++;
     });
     renderMaster();
@@ -976,9 +995,9 @@ function renderSearch(){
     if(L!==letter){letter=L;out+=`<div class="abc">${L}</div>`;}
     const hi=q?p.no.replace(new RegExp(q,"i"),m=>`<mark>${m}</mark>`):p.no;
     out+=`<div class="item" onclick="pick('${p.no}')">
-      <span class="dot" style="background:${COLORS[p.c].h}"></span>
+      <span class="dot" style="background:${dotColor(p.c)}"></span>
       <span class="no">${hi}</span>
-      <span class="nm">${p.nm}<i>${p.sp||COLORS[p.c].es}</i></span></div>`;
+      <span class="nm">${p.nm}<i>${cname(p.c)}${p.sp?" · "+p.sp:""}</i></span></div>`;
   });
   $("sList").innerHTML=out;
 }
@@ -1004,7 +1023,7 @@ function addPart(){
   const no=$("mNo").value.trim().toUpperCase();
   if(!no) return toast("품번을 입력해라 · Ingresa el número de parte");
   if(PARTS.some(p=>p.no===no)) return toast("이미 등록된 품번 · Ya existe");
-  PARTS.push({no,nm:$("mNm").value.trim()||no,c:$("mCol").value,sp:$("mSp").value.trim()});
+  PARTS.push({no,nm:$("mNm").value.trim()||no,c:$("mCol").value.trim().toUpperCase(),sp:$("mSp").value.trim()});
   ["mNo","mNm","mSp"].forEach(i=>$(i).value=""); renderMaster();
   toast("마스터 추가 완료 · Agregado al maestro");
 }

@@ -23,12 +23,18 @@ create table if not exists paint.workers (
 create table if not exists paint.parts (
   part_no   text primary key,
   name      text,                                  -- 품명 (영문)
-  color     text check (color in ('BK','SL','GY','WH')),
+  color     text,                                  -- 컬러 코드 (자유 입력)
   spec      text,                                  -- 도장사양
   active    boolean not null default true
 );
 
--- 이전 버전(품명 2칸)으로 이미 만들었다면 아래가 자동으로 합쳐준다
+-- 이전 버전(품명 2칸)으로 이미 만들었다면 아래가 자동으로 합쳐준다.
+-- 뷰가 옛 컬럼을 붙잡고 있으므로 먼저 치운다. 뷰는 이 파일 아래쪽에서 다시 만들어진다.
+drop view if exists paint.v_progress;
+
+-- 컬러 코드 제한을 쓰던 버전이면 제약을 푼다
+alter table if exists paint.parts drop constraint if exists parts_color_check;
+
 do $$
 begin
   if exists (select 1 from information_schema.columns
@@ -244,8 +250,8 @@ left join paint.results r on r.plan_id = p.id;
 insert into paint.parts (part_no, name, color, spec) values
  ('A-1023','Door clip','BK','1C1B mate'),
  ('A-2210','Cover bracket','SL','2C1B metallic'),
- ('B-1140','Hinge cap','BK','1C1B mate'),
- ('B-3302','Nozzle ring','GY','2C1B semi-gloss')
+ ('B-1140','Hinge cap','NH-731P','1C1B mate'),
+ ('B-3302','Nozzle ring','8P4','2C1B semi-gloss')
 on conflict do nothing;
 
 -- 최초 관리자 지정: 본인 계정으로 가입한 뒤 아래 실행
