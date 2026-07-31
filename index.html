@@ -550,8 +550,9 @@ const COLORS={BK:{h:"#24282C",kr:"흑색",es:"Negro"},SL:{h:"#B9BEC4",kr:"은색
    Supabase 설정 — 아래 두 줄만 본인 프로젝트 값으로 교체
    Settings → API → Project URL / anon public key
    ═══════════════════════════════════════════════════ */
-const SUPABASE_URL = "https://여기에-프로젝트-URL.supabase.co";
-const SUPABASE_KEY = "여기에-anon-public-key";
+const SUPABASE_URL = "https://yucijfdturmvmbkyvbcq.supabase.co
+";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1Y2lqZmR0dXJtdm1ia3l2YmNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MTYyNzMsImV4cCI6MjA5Nzk5MjI3M30.u0AK_oBylVqWqTNtxqC3S9NCfTEEPPN4Zv1gEFuIgm0";
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { db:{ schema:"paint" } });
 const EMAIL_DOMAIN = "nku.local";           // 사번 → 내부 이메일 변환용
