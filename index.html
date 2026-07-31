@@ -547,13 +547,24 @@ const COLORS={BK:{h:"#24282C",kr:"흑색",es:"Negro"},SL:{h:"#B9BEC4",kr:"은색
               GY:{h:"#7E858C",kr:"회색",es:"Gris"},WH:{h:"#EFF0F2",kr:"백색",es:"Blanco"}};
 
 /* ═══════════════════════════════════════════════════
-   Supabase 설정 — 아래 두 줄만 본인 프로젝트 값으로 교체
+    설정 — 아래 두 줄만 본인 프로젝트 값으로 교체
    Settings → API → Project URL / anon public key
    ═══════════════════════════════════════════════════ */
 const SUPABASE_URL = "https://yucijfdturmvmbkyvbcq.supabase.co";   // 예 https://abcd1234.supabase.co
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1Y2lqZmR0dXJtdm1ia3l2YmNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MTYyNzMsImV4cCI6MjA5Nzk5MjI3M30.u0AK_oBylVqWqTNtxqC3S9NCfTEEPPN4Zv1gEFuIgm0"; // 예 eyJhbGciOi....
 
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { db:{ schema:"paint" } });
+// 키가 없거나 잘못돼도 화면은 살아 있어야 하므로 안전하게 만든다
+const LIB_OK = (typeof supabase !== "undefined");
+const KEY_OK = /^https:\/\/[^\s]+\.supabase\./.test(SUPABASE_URL) && /^ey/.test(SUPABASE_KEY);
+let sb = null, SETUP_MSG = "";
+if(!LIB_OK){
+  SETUP_MSG = "Supabase 연결 파일을 불러오지 못했다. 인터넷 연결을 확인해라. · No se pudo cargar la librería de Supabase.";
+}else if(!KEY_OK){
+  SETUP_MSG = "index.html 상단의 SUPABASE_URL 과 SUPABASE_KEY 가 아직 채워지지 않았다. Supabase → Settings → API 에서 복사해 넣어라. · Falta configurar SUPABASE_URL y SUPABASE_KEY.";
+}else{
+  try{ sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { db:{ schema:"paint" } }); }
+  catch(e){ SETUP_MSG = "Supabase 주소나 키가 올바르지 않다 · URL o clave inválida: " + e.message; }
+}
 const EMAIL_DOMAIN = "nku.local";           // 사번 → 내부 이메일 변환용
 const mail = emp => `${emp}@${EMAIL_DOMAIN}`;
 const pass = (emp,pin) => `NKU-${emp}-${pin}`;   // 4자리 PIN을 6자 이상으로 확장
@@ -582,10 +593,8 @@ function authTab(m){
   $("aGo").innerHTML = m==="in" ? '로그인<i class="es">Entrar</i>' : '가입 신청<i class="es">Crear cuenta</i>';
   $("authErr").classList.add("hide");
 }
-const KEY_OK = SUPABASE_URL.startsWith("https://") && SUPABASE_KEY.startsWith("ey");
-
 async function doAuth(){
-  if(!KEY_OK) return showErr("index.html 상단의 SUPABASE_URL 과 SUPABASE_KEY 를 아직 넣지 않았다. Supabase → Settings → API 에서 복사해 붙여넣어라. · Falta configurar SUPABASE_URL y SUPABASE_KEY en index.html.");
+  if(!sb) return showErr(SETUP_MSG);
   const emp=$("aEmp").value.trim(), pin=$("aPin").value.trim();
   if(!emp||pin.length!==4) return showErr("사번과 PIN 4자리를 입력해라. · Ingresa tu número de empleado y un PIN de 4 dígitos.");
   if(mode==="up" && !$("aName").value.trim()) return showErr("이름을 입력해라. · Ingresa tu nombre.");
@@ -1199,9 +1208,7 @@ async function doInstall(){
 }
 window.addEventListener("appinstalled",()=>{ $("installBtn").classList.add("hide"); });
 
-window.addEventListener("load",()=>{
-  if(!KEY_OK) showErr("설정 미완료 · Configuración pendiente — index.html 상단의 SUPABASE_URL / SUPABASE_KEY 를 본인 값으로 교체해야 한다.");
-});
+window.addEventListener("load",()=>{ if(!sb && SETUP_MSG) showErr(SETUP_MSG); });
 
 if("serviceWorker" in navigator){
   window.addEventListener("load",()=>{
