@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="도장실적">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-192.png">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" onerror="this.remove()">
 <style>
 :root{
   --ink:#16181C; --ink2:#5A6068; --ink3:#949AA2;
@@ -324,12 +324,6 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
 @media (prefers-reduced-motion:reduce){*{transition:none !important}}
 </style>
 <script src="supabase.js"></script>
-<script>
-/* 같은 폴더의 supabase.js 를 못 읽었을 때만 외부 CDN 으로 한 번 더 시도한다 */
-if (typeof supabase === "undefined") {
-  document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');
-}
-</script>
 </head>
 <body>
 
@@ -560,11 +554,11 @@ const SUPABASE_URL = "https://yucijfdturmvmbkyvbcq.supabase.co";   // 예 https:
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1Y2lqZmR0dXJtdm1ia3l2YmNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MTYyNzMsImV4cCI6MjA5Nzk5MjI3M30.u0AK_oBylVqWqTNtxqC3S9NCfTEEPPN4Zv1gEFuIgm0"; // 예 eyJhbGciOi....
 
 // 키가 없거나 잘못돼도 화면은 살아 있어야 하므로 안전하게 만든다
-const LIB_OK = (typeof  !== "undefined");
+const LIB_OK = (typeof supabase !== "undefined");
 const KEY_OK = /^https:\/\/[^\s]+\.supabase\./.test(SUPABASE_URL) && /^ey/.test(SUPABASE_KEY);
 let sb = null, SETUP_MSG = "";
 if(!LIB_OK){
-  SETUP_MSG = "Supabase 연결 파일을 불러오지 못했다. 인터넷 연결을 확인해라. · No se pudo cargar la librería de Supabase.";
+  SETUP_MSG = "supabase.js 파일을 찾지 못했다. index.html 과 같은 폴더에 supabase.js 가 올라가 있는지 확인해라. · No se encontró supabase.js junto a index.html.";
 }else if(!KEY_OK){
   SETUP_MSG = "index.html 상단의 SUPABASE_URL 과 SUPABASE_KEY 가 아직 채워지지 않았다. Supabase → Settings → API 에서 복사해 넣어라. · Falta configurar SUPABASE_URL y SUPABASE_KEY.";
 }else{
