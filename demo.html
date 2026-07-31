@@ -333,10 +333,7 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
       <div id="upOnly" class="hide">
         <label class="f"><span>이름<i class="es">Nombre</i></span>
           <input class="i" id="aName" placeholder="예 / ej. Juan Pérez"></label>
-        <label class="f"><span>근무조<i class="es">Turno</i></span>
-          <select class="i" id="aShift">
-            <option value="A">A조 주간 · Turno A / Día</option>
-            <option value="B">B조 야간 · Turno B / Noche</option></select></label>
+
       </div>
       <label class="f"><span>PIN 4자리<i class="es">PIN de 4 dígitos</i></span>
         <input class="i" id="aPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••"></label>
@@ -446,8 +443,8 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
   <section id="v-master" class="wrap hide">
     <div class="sec"><h2>마스터 일괄등록<i class="es">Carga masiva del maestro</i></h2></div>
     <div class="card pad" style="margin-bottom:14px">
-      <p class="note" style="margin:0 0 11px">양식은 <b>품번 · 품명(한국어) · 품명(스페인어) · 컬러 · 도장사양</b> 다섯 칸이다. 컬러는 BK / SL / GY / WH.
-        <span class="es">Cinco columnas. El color debe ser BK, SL, GY o WH.</span></p>
+      <p class="note" style="margin:0 0 11px">양식은 <b>품번 · 품명 · 컬러 · 도장사양</b> 네 칸이다. 품명은 영문 하나만, 컬러는 BK / SL / GY / WH.
+        <span class="es">Cuatro columnas. El color debe ser BK, SL, GY o WH.</span></p>
       <div class="bulk">
         <button class="btn ghost sm" onclick="tplPart()">양식 내려받기<i class="es">Plantilla</i></button>
         <button class="btn ghost sm" onclick="$('upPart').click()">양식 업로드<i class="es">Subir CSV</i></button>
@@ -460,12 +457,8 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
     <div class="card pad" style="margin-bottom:12px">
       <label class="f"><span>품번<i class="es">Número de parte</i></span>
         <input class="i" id="mNo" placeholder="A-1023"></label>
-      <div class="row2">
-        <label class="f"><span>품명 (한국어)<i class="es">Nombre en coreano</i></span>
-          <input class="i" id="mKr" placeholder="도어 클립"></label>
-        <label class="f"><span>품명 (스페인어)<i class="es">Nombre en español</i></span>
-          <input class="i" id="mEs" placeholder="Clip de puerta"></label>
-      </div>
+      <label class="f"><span>품명<i class="es">Description</i></span>
+        <input class="i" id="mNm" placeholder="Door clip"></label>
       <label class="f"><span>컬러<i class="es">Color</i></span>
         <select class="i" id="mCol">
           <option value="BK">BK 흑색 · Negro</option><option value="SL">SL 은색 · Plata</option>
@@ -537,20 +530,20 @@ const COLORS={BK:{h:"#24282C",kr:"흑색",es:"Negro"},SL:{h:"#B9BEC4",kr:"은색
               GY:{h:"#7E858C",kr:"회색",es:"Gris"},WH:{h:"#EFF0F2",kr:"백색",es:"Blanco"}};
 
 let PARTS=[
- {no:"A-1023",kr:"도어 클립",es:"Clip de puerta",c:"BK",sp:"1C1B 무광 · 1 capa mate"},
- {no:"A-2210",kr:"커버 브라켓",es:"Soporte de cubierta",c:"SL",sp:"2C1B 메탈릭 · 2 capas metálico"},
- {no:"B-1140",kr:"힌지 캡",es:"Tapa de bisagra",c:"BK",sp:"1C1B 무광 · 1 capa mate"},
- {no:"B-3302",kr:"노즐 링",es:"Anillo de boquilla",c:"GY",sp:"2C1B 반광 · 2 capas semimate"},
- {no:"C-1005",kr:"사이드 몰딩",es:"Moldura lateral",c:"BK",sp:"3C2B 유광 · 3 capas brillante"},
- {no:"C-2418",kr:"트림 패널",es:"Panel de moldura",c:"WH",sp:"2C1B 유광 · 2 capas brillante"},
- {no:"D-1120",kr:"램프 하우징",es:"Carcasa de lámpara",c:"SL",sp:"2C1B 메탈릭 · 2 capas metálico"},
- {no:"D-4407",kr:"가니시 A",es:"Guarnición A",c:"BK",sp:"3C2B 유광 · 3 capas brillante"},
- {no:"E-2201",kr:"스위치 베젤",es:"Bisel de interruptor",c:"GY",sp:"1C1B 무광 · 1 capa mate"},
- {no:"F-1003",kr:"핸들 커버",es:"Cubierta de manija",c:"SL",sp:"2C1B 메탈릭 · 2 capas metálico"},
- {no:"G-2205",kr:"미러 캡",es:"Tapa de espejo",c:"WH",sp:"2C1B 유광 · 2 capas brillante"},
- {no:"H-1077",kr:"필러 가니시",es:"Guarnición de pilar",c:"BK",sp:"UV 하드코트 · Capa dura UV"},
- {no:"J-3010",kr:"콘솔 트림",es:"Moldura de consola",c:"GY",sp:"2C1B 반광 · 2 capas semimate"},
- {no:"K-1200",kr:"에어벤트 링",es:"Anillo de ventilación",c:"SL",sp:"1C1B 메탈릭 · 1 capa metálico"}
+ {no:"A-1023",nm:"Clip de puerta",c:"BK",sp:"1C1B 무광 · 1 capa mate"},
+ {no:"A-2210",nm:"Soporte de cubierta",c:"SL",sp:"2C1B 메탈릭 · 2 capas metálico"},
+ {no:"B-1140",nm:"Tapa de bisagra",c:"BK",sp:"1C1B 무광 · 1 capa mate"},
+ {no:"B-3302",nm:"Anillo de boquilla",c:"GY",sp:"2C1B 반광 · 2 capas semimate"},
+ {no:"C-1005",nm:"Moldura lateral",c:"BK",sp:"3C2B 유광 · 3 capas brillante"},
+ {no:"C-2418",nm:"Panel de moldura",c:"WH",sp:"2C1B 유광 · 2 capas brillante"},
+ {no:"D-1120",nm:"Carcasa de lámpara",c:"SL",sp:"2C1B 메탈릭 · 2 capas metálico"},
+ {no:"D-4407",nm:"Guarnición A",c:"BK",sp:"3C2B 유광 · 3 capas brillante"},
+ {no:"E-2201",nm:"Bisel de interruptor",c:"GY",sp:"1C1B 무광 · 1 capa mate"},
+ {no:"F-1003",nm:"Cubierta de manija",c:"SL",sp:"2C1B 메탈릭 · 2 capas metálico"},
+ {no:"G-2205",nm:"Tapa de espejo",c:"WH",sp:"2C1B 유광 · 2 capas brillante"},
+ {no:"H-1077",nm:"Guarnición de pilar",c:"BK",sp:"UV 하드코트 · Capa dura UV"},
+ {no:"J-3010",nm:"Moldura de consola",c:"GY",sp:"2C1B 반광 · 2 capas semimate"},
+ {no:"K-1200",nm:"Anillo de ventilación",c:"SL",sp:"1C1B 메탈릭 · 1 capa metálico"}
 ];
 
 let PLANS=[
@@ -592,7 +585,7 @@ let STAFF=[
 ];
 let USER=null, curLine=null, curPlan=null, curRes=null, searchMode="plan", view="home", seq=100;
 const $=id=>document.getElementById(id);
-const part=no=>PARTS.find(p=>p.no===no)||{no,kr:"—",es:"—",c:"BK",sp:""};
+const part=no=>PARTS.find(p=>p.no===no)||{no,nm:"—",c:"BK",sp:""};
 const res=pid=>RESULTS.find(r=>r.pid===pid)||null;
 const acc=pid=>{const r=res(pid);return r?{i:r.in,o:r.ok,n:r.ng}:{i:0,o:0,n:0};};
 const pending=r=>r&&r.ok+r.ng<r.in;
@@ -615,9 +608,9 @@ function doAuth(){
   const emp=$("aEmp").value.trim(), pin=$("aPin").value.trim();
   if(!emp||pin.length!==4) return showErr("사번과 PIN 4자리를 입력해라. · Ingresa tu número de empleado y un PIN de 4 dígitos.");
   if(mode==="up" && !$("aName").value.trim()) return showErr("이름을 입력해라. · Ingresa tu nombre.");
-  USER={emp,name:mode==="up"?$("aName").value.trim():"김대곤 / D. Kim",shift:mode==="up"?$("aShift").value:"A",admin:true};
+  USER={emp,name:mode==="up"?$("aName").value.trim():"김대곤 / D. Kim",admin:true};
   $("auth").classList.add("hide"); $("app").classList.remove("hide");
-  $("whoName").textContent=USER.name; $("whoMeta").textContent=`${USER.shift}조 · Turno ${USER.shift}`;
+  $("whoName").textContent=USER.name; $("whoMeta").textContent=`사번 ${USER.emp}`;
   const d=new Date(); $("dToday").textContent=`${d.getMonth()+1}/${d.getDate()}`;
   go("home");
   if(location.hash==="#tv"){ go("dash"); openTV(); return; }
@@ -681,7 +674,7 @@ function renderPlans(){
       <div class="seqn">${String(p.seq).padStart(2,"0")}</div>
       <div class="pbody" onclick="openPlan(${p.id})">
         <div class="ph"><span class="dot" style="background:${COLORS[P.c].h}"></span>
-          <div class="pn">${p.no}<i class="es">${P.kr} · ${P.es}</i></div></div>
+          <div class="pn">${p.no}<i class="es">${P.nm}</i></div></div>
         <div style="margin:6px 0">${chip(k)}</div>
         <div class="nums"><span>계획 <b>${p.qty}</b></span><span>투입 <b>${a.i}</b></span>
           <span>OK <b>${a.o}</b></span><span>NG <b>${a.n}</b></span></div>
@@ -708,7 +701,7 @@ function renderDetail(){
   $("detHead").innerHTML=`
     <div class="t"><span class="dot" style="background:${COLORS[P.c].h}"></span>
       <h2>${p.no}</h2><span class="tag">${p.line}번라인 ${p.shift}조</span></div>
-    <div class="es" style="margin-top:4px">${P.kr} · ${P.es} — ${COLORS[P.c].kr} / ${COLORS[P.c].es}</div>
+    <div class="es" style="margin-top:4px">${P.nm} — ${COLORS[P.c].kr} / ${COLORS[P.c].es}</div>
     <div class="es" style="margin-top:3px;color:var(--or-d)">도장사양 · Especificación — ${P.sp||"미등록"}</div>
     <div style="margin-top:9px">${chip(k)}</div>
     <div class="meta">
@@ -796,7 +789,7 @@ function renderDash(){
       const ip=p.qty?Math.min(100,Math.round(x.o/p.qty*100)):0, f=ftt(r);
       return `<div class="ditem">
         <div class="dtop"><span class="dot" style="background:${COLORS[P.c].h}"></span>
-          <span class="dno">${p.no}</span><span class="dnm">${P.kr} · ${P.es}</span>
+          <span class="dno">${p.no}</span><span class="dnm">${P.nm}</span>
           <span class="dpct ${ip>=100?'g':''}">${ip}%</span></div>
         <div style="margin:0 0 6px">${chip(k)}</div>
         <div class="dbar"><i style="width:${ip}%;background:${k==="done"?'var(--ok)':'var(--or)'}"></i></div>
@@ -824,14 +817,15 @@ function renderMaster(){
   $("masterList").innerHTML=[...PARTS].sort((a,b)=>a.no.localeCompare(b.no)).map(p=>
     `<div class="mrow"><span class="dot" style="background:${COLORS[p.c].h}"></span>
       <span class="no">${p.no}</span>
-      <span class="nm">${p.kr} · ${p.es}<i>${COLORS[p.c].kr} / ${COLORS[p.c].es} — ${p.sp||"사양 미등록"}</i></span></div>`).join("");
+      <span class="nm">${p.nm}<i>${COLORS[p.c].kr} / ${COLORS[p.c].es} — ${p.sp||"사양 미등록"}</i></span>
+      <button class="sbtn off" onclick="delPart('${p.no}')">삭제</button></div>`).join("");
 }
 function renderPlanAdmin(){
   $("planAdmin").innerHTML=PLANS.slice().sort((a,b)=>a.line.localeCompare(b.line)||a.seq-b.seq).map(p=>{
     const P=part(p.no), a=acc(p.id);
     return `<div class="mrow"><span class="tag">${p.line}L·${p.shift}·${String(p.seq).padStart(2,"0")}</span>
       <span class="no">${p.no}</span>
-      <span class="nm">${P.kr}<i>계획 ${p.qty} · OK ${a.o}</i></span></div>`;
+      <span class="nm">${P.nm}<i>계획 ${p.qty} · OK ${a.o}</i></span></div>`;
   }).join("")||`<div class="empty"><strong>계획 없음</strong><span class="es">Sin planes</span></div>`;
 }
 
@@ -841,7 +835,7 @@ function renderStaff(){
   $("staffWait").innerHTML = wait.length ? wait.map(w=>`
     <div class="srow"><div class="av">${(w.name||"?").trim()[0]}</div>
       <div class="in"><div class="nm">${w.name}</div>
-        <div class="sub">사번 ${w.emp_no} · ${w.shift||"—"}조 · 신청 ${w.created_at}</div></div>
+        <div class="sub">사번 ${w.emp_no} · 신청 ${w.created_at}</div></div>
       <div class="ac"><button class="sbtn go" onclick="approve('${w.id}',true)">승인 · Aprobar</button></div>
     </div>`).join("")
     : `<div class="empty"><strong>승인 대기 없음</strong><span class="es">No hay solicitudes pendientes</span></div>`;
@@ -850,11 +844,12 @@ function renderStaff(){
     const me=w.emp_no===USER.emp, adm=w.role==="admin";
     return `<div class="srow"><div class="av ${adm?'adm':''}">${(w.name||"?").trim()[0]}</div>
       <div class="in"><div class="nm">${w.name}${me?' <span class="tag">본인</span>':''}</div>
-        <div class="sub">사번 ${w.emp_no} · ${w.shift||"—"}조 · ${adm?"관리자 · Admin":"작업자 · Operador"}</div></div>
+        <div class="sub">사번 ${w.emp_no} · ${adm?"관리자 · Admin":"작업자 · Operador"}</div></div>
       <div class="ac">
         <button class="sbtn" onclick="setRole('${w.id}','${adm?"worker":"admin"}')" ${me?"disabled":""}>
           ${adm?"관리자 해제":"관리자 지정"}</button>
-        <button class="sbtn off" onclick="approve('${w.id}',false)" ${me?"disabled":""}>차단</button>
+        <button class="sbtn" onclick="approve('${w.id}',false)" ${me?"disabled":""}>차단</button>
+        <button class="sbtn off" onclick="delStaff('${w.id}')" ${me?"disabled":""}>삭제</button>
       </div></div>`;
   }).join("") : `<div class="empty"><strong>등록된 작업자 없음</strong><span class="es">Sin personal registrado</span></div>`;
 }
@@ -866,6 +861,18 @@ function setRole(id,role){
   const w=STAFF.find(x=>x.id===id); if(!w) return;
   w.role=role; renderStaff();
   toast(role==="admin"?`${w.name} 관리자 지정 · Ahora es admin`:`${w.name} 작업자로 변경 · Ahora es operador`);
+}
+
+function delStaff(id){
+  const w=STAFF.find(x=>x.id===id); if(!w) return;
+  if(w.emp_no===USER.emp) return toast("본인 계정은 삭제할 수 없다 · No puedes eliminar tu cuenta");
+  if(!confirm(`${w.name} 계정을 삭제하겠나? · ¿Eliminar la cuenta de ${w.name}?`)) return;
+  STAFF=STAFF.filter(x=>x.id!==id); renderStaff(); toast(`${w.name} 삭제 · Eliminado`);
+}
+function delPart(no){
+  if(!confirm(`품번 ${no} 을(를) 삭제하겠나? · ¿Eliminar la parte ${no}?`)) return;
+  if(PLANS.some(p=>p.no===no)) return toast("계획에 사용 중이라 삭제 불가 · En uso en un plan");
+  PARTS=PARTS.filter(p=>p.no!==no); renderMaster(); toast(`${no} 삭제 · Eliminado`);
 }
 
 /* ═══ CSV ═══ */
@@ -890,9 +897,9 @@ function parseCSV(t){
 function report(el,lines){ const e=$(el); e.innerHTML=lines.join("<br>"); e.classList.remove("hide"); }
 
 function tplPart(){
-  dl("마스터_양식.csv",[["품번","품명(한국어)","품명(스페인어)","컬러","도장사양"],
-    ["A-1023","도어 클립","Clip de puerta","BK","1C1B 무광 · 1 capa mate"],
-    ["B-3302","노즐 링","Anillo de boquilla","GY","2C1B 반광 · 2 capas semimate"]]);
+  dl("마스터_양식.csv",[["품번 / Part No","품명 / Description","컬러 / Color","도장사양 / Spec"],
+    ["A-1023","Door clip","BK","1C1B mate"],
+    ["B-3302","Nozzle ring","GY","2C1B semi-gloss"]]);
   toast("양식 내려받기 · Plantilla descargada");
 }
 function impPart(inp){
@@ -959,7 +966,7 @@ function openSearch(m){
 }
 function renderSearch(){
   const q=$("sQ").value.trim().toUpperCase();
-  const rows=PARTS.filter(p=>p.no.toUpperCase().includes(q)||p.kr.includes(q)||p.es.toUpperCase().includes(q))
+  const rows=PARTS.filter(p=>p.no.toUpperCase().includes(q)||p.nm.toUpperCase().includes(q))
                   .sort((a,b)=>a.no.localeCompare(b.no));
   if(!rows.length){ $("sList").innerHTML=`<div class="empty"><strong>검색 결과 없음</strong>
       <span class="es">Sin resultados — revisa el maestro</span></div>`; return; }
@@ -971,16 +978,17 @@ function renderSearch(){
     out+=`<div class="item" onclick="pick('${p.no}')">
       <span class="dot" style="background:${COLORS[p.c].h}"></span>
       <span class="no">${hi}</span>
-      <span class="nm">${p.kr}<i>${p.es} · ${p.sp||COLORS[p.c].es}</i></span></div>`;
+      <span class="nm">${p.nm}<i>${p.sp||COLORS[p.c].es}</i></span></div>`;
   });
   $("sList").innerHTML=out;
 }
 function pick(no){
   if(searchMode==="plan"){
     const P=part(no); $("pPart").dataset.no=no;
-    $("pPart").innerHTML=`${no} <i class="es">${P.kr} · ${P.es}</i>`; closeAll();
+    $("pPart").innerHTML=`${no} <i class="es">${P.nm}</i>`; closeAll();
   }else{
-    const np={id:++seq,seq:PLANS.filter(p=>p.line===curLine).length+1,line:curLine,shift:USER.shift,no,qty:0,adhoc:true};
+    const sh=(PLANS.filter(p=>p.line===curLine).slice(-1)[0]||{}).shift||"A";
+    const np={id:++seq,seq:PLANS.filter(p=>p.line===curLine).length+1,line:curLine,shift:sh,no,qty:0,adhoc:true};
     PLANS.push(np); curPlan=np; closeAll(); setTimeout(()=>go("detail"),260);
   }
 }
@@ -996,8 +1004,8 @@ function addPart(){
   const no=$("mNo").value.trim().toUpperCase();
   if(!no) return toast("품번을 입력해라 · Ingresa el número de parte");
   if(PARTS.some(p=>p.no===no)) return toast("이미 등록된 품번 · Ya existe");
-  PARTS.push({no,kr:$("mKr").value.trim()||no,es:$("mEs").value.trim()||no,c:$("mCol").value,sp:$("mSp").value.trim()});
-  ["mNo","mKr","mEs","mSp"].forEach(i=>$(i).value=""); renderMaster();
+  PARTS.push({no,nm:$("mNm").value.trim()||no,c:$("mCol").value,sp:$("mSp").value.trim()});
+  ["mNo","mNm","mSp"].forEach(i=>$(i).value=""); renderMaster();
   toast("마스터 추가 완료 · Agregado al maestro");
 }
 

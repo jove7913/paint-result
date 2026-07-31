@@ -344,10 +344,7 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
       <div id="upOnly" class="hide">
         <label class="f"><span>이름<i class="es">Nombre</i></span>
           <input class="i" id="aName" placeholder="예 / ej. Juan Pérez"></label>
-        <label class="f"><span>근무조<i class="es">Turno</i></span>
-          <select class="i" id="aShift">
-            <option value="A">A조 주간 · Turno A / Día</option>
-            <option value="B">B조 야간 · Turno B / Noche</option></select></label>
+
       </div>
       <label class="f"><span>PIN 4자리<i class="es">PIN de 4 dígitos</i></span>
         <input class="i" id="aPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••"></label>
@@ -460,8 +457,8 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
   <section id="v-master" class="wrap hide">
     <div class="sec"><h2>마스터 일괄등록<i class="es">Carga masiva del maestro</i></h2></div>
     <div class="card pad" style="margin-bottom:14px">
-      <p class="note" style="margin:0 0 11px">양식은 <b>품번 · 품명(한국어) · 품명(스페인어) · 컬러 · 도장사양</b> 다섯 칸이다. 컬러는 BK / SL / GY / WH.
-        <span class="es">Cinco columnas. El color debe ser BK, SL, GY o WH.</span></p>
+      <p class="note" style="margin:0 0 11px">양식은 <b>품번 · 품명 · 컬러 · 도장사양</b> 네 칸이다. 품명은 영문 하나만, 컬러는 BK / SL / GY / WH.
+        <span class="es">Cuatro columnas. El color debe ser BK, SL, GY o WH.</span></p>
       <div class="bulk">
         <button class="btn ghost sm" onclick="tplPart()">양식 내려받기<i class="es">Plantilla</i></button>
         <button class="btn ghost sm" onclick="$('upPart').click()">양식 업로드<i class="es">Subir CSV</i></button>
@@ -474,12 +471,8 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
     <div class="card pad" style="margin-bottom:12px">
       <label class="f"><span>품번<i class="es">Número de parte</i></span>
         <input class="i" id="mNo" placeholder="A-1023"></label>
-      <div class="row2">
-        <label class="f"><span>품명 (한국어)<i class="es">Nombre en coreano</i></span>
-          <input class="i" id="mKr" placeholder="도어 클립"></label>
-        <label class="f"><span>품명 (스페인어)<i class="es">Nombre en español</i></span>
-          <input class="i" id="mEs" placeholder="Clip de puerta"></label>
-      </div>
+      <label class="f"><span>품명<i class="es">Description</i></span>
+        <input class="i" id="mNm" placeholder="Door clip"></label>
       <label class="f"><span>컬러<i class="es">Color</i></span>
         <select class="i" id="mCol">
           <option value="BK">BK 흑색 · Negro</option><option value="SL">SL 은색 · Plata</option>
@@ -557,8 +550,8 @@ const COLORS={BK:{h:"#24282C",kr:"흑색",es:"Negro"},SL:{h:"#B9BEC4",kr:"은색
    Supabase 설정 — 아래 두 줄만 본인 프로젝트 값으로 교체
    Settings → API → Project URL / anon public key
    ═══════════════════════════════════════════════════ */
-const SUPABASE_URL = "https://yucijfdturmvmbkyvbcq.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1Y2lqZmR0dXJtdm1ia3l2YmNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MTYyNzMsImV4cCI6MjA5Nzk5MjI3M30.u0AK_oBylVqWqTNtxqC3S9NCfTEEPPN4Zv1gEFuIgm0";
+const SUPABASE_URL = "https://여기에-프로젝트-URL.supabase.co";
+const SUPABASE_KEY = "여기에-anon-public-key";
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { db:{ schema:"paint" } });
 const EMAIL_DOMAIN = "nku.local";           // 사번 → 내부 이메일 변환용
@@ -570,7 +563,7 @@ const today = () => new Date().toISOString().slice(0,10);
 
 let USER=null, curLine=null, curPlan=null, curRes=null, searchMode="plan", view="home", seq=100;
 const $=id=>document.getElementById(id);
-const part=no=>PARTS.find(p=>p.no===no)||{no,kr:"—",es:"—",c:"BK",sp:""};
+const part=no=>PARTS.find(p=>p.no===no)||{no,nm:"—",c:"BK",sp:""};
 const res=pid=>RESULTS.find(r=>r.pid===pid)||null;
 const acc=pid=>{const r=res(pid);return r?{i:r.in,o:r.ok,n:r.ng}:{i:0,o:0,n:0};};
 const pending=r=>r&&r.ok+r.ng<r.in;
@@ -597,7 +590,7 @@ async function doAuth(){
   try{
     if(mode==="up"){
       const {error}=await sb.auth.signUp({email:mail(emp),password:pass(emp,pin),
-        options:{data:{emp_no:emp,name:$("aName").value.trim(),shift:$("aShift").value}}});
+        options:{data:{emp_no:emp,name:$("aName").value.trim()}}});
       if(error) throw error;
       await sb.auth.signOut();
       showErr("가입 신청 완료. 관리자 승인 후 로그인할 수 있다. · Cuenta creada. Espera la aprobación del administrador.");
@@ -618,9 +611,9 @@ async function afterLogin(){
     await sb.auth.signOut();
     return showErr("관리자 승인 대기 중이다. · Tu cuenta está pendiente de aprobación.");
   }
-  USER={id:user.id,emp:me.emp_no,name:me.name,shift:me.shift||"A",admin:me.role==="admin"};
+  USER={id:user.id,emp:me.emp_no,name:me.name,admin:me.role==="admin"};
   $("auth").classList.add("hide"); $("app").classList.remove("hide");
-  $("whoName").textContent=USER.name; $("whoMeta").textContent=`${USER.shift}조 · Turno ${USER.shift}`;
+  $("whoName").textContent=USER.name; $("whoMeta").textContent=`사번 ${USER.emp}`;
   const d=new Date(); $("dToday").textContent=`${d.getMonth()+1}/${d.getDate()}`;
   ["t-plan","t-master","t-staff"].forEach(t=>$(t).classList.toggle("hide",!USER.admin));
   await loadAll();
@@ -643,7 +636,7 @@ async function loadAll(){
     sb.from("workers").select("*").order("created_at")
   ]);
   if(pa.error||pl.error||rs.error) return toast("데이터 조회 실패 · Error al cargar");
-  PARTS=(pa.data||[]).map(x=>({no:x.part_no,kr:x.name_kr||x.part_no,es:x.name_es||x.part_no,c:x.color||"BK",sp:x.spec||""}));
+  PARTS=(pa.data||[]).map(x=>({no:x.part_no,nm:x.name||x.part_no,c:x.color||"BK",sp:x.spec||""}));
   PLANS=(pl.data||[]).map(x=>({id:x.id,seq:x.seq,line:x.line_id,shift:x.shift,no:x.part_no,qty:x.plan_qty,adhoc:x.is_adhoc}));
   STAFF=(wk.data||[]); WORKERS={}; STAFF.forEach(w=>WORKERS[w.id]=w.name);
   const nm=id=>WORKERS[id]||"—";
@@ -724,7 +717,7 @@ function renderPlans(){
       <div class="seqn">${String(p.seq).padStart(2,"0")}</div>
       <div class="pbody" onclick="openPlan('${p.id}')">
         <div class="ph"><span class="dot" style="background:${COLORS[P.c].h}"></span>
-          <div class="pn">${p.no}<i class="es">${P.kr} · ${P.es}</i></div></div>
+          <div class="pn">${p.no}<i class="es">${P.nm}</i></div></div>
         <div style="margin:6px 0">${chip(k)}</div>
         <div class="nums"><span>계획 <b>${p.qty}</b></span><span>투입 <b>${a.i}</b></span>
           <span>OK <b>${a.o}</b></span><span>NG <b>${a.n}</b></span></div>
@@ -753,7 +746,7 @@ function renderDetail(){
   $("detHead").innerHTML=`
     <div class="t"><span class="dot" style="background:${COLORS[P.c].h}"></span>
       <h2>${p.no}</h2><span class="tag">${p.line}번라인 ${p.shift}조</span></div>
-    <div class="es" style="margin-top:4px">${P.kr} · ${P.es} — ${COLORS[P.c].kr} / ${COLORS[P.c].es}</div>
+    <div class="es" style="margin-top:4px">${P.nm} — ${COLORS[P.c].kr} / ${COLORS[P.c].es}</div>
     <div class="es" style="margin-top:3px;color:var(--or-d)">도장사양 · Especificación — ${P.sp||"미등록"}</div>
     <div style="margin-top:9px">${chip(k)}</div>
     <div class="meta">
@@ -850,7 +843,7 @@ function renderDash(){
       const ip=p.qty?Math.min(100,Math.round(x.o/p.qty*100)):0, f=ftt(r);
       return `<div class="ditem">
         <div class="dtop"><span class="dot" style="background:${COLORS[P.c].h}"></span>
-          <span class="dno">${p.no}</span><span class="dnm">${P.kr} · ${P.es}</span>
+          <span class="dno">${p.no}</span><span class="dnm">${P.nm}</span>
           <span class="dpct ${ip>=100?'g':''}">${ip}%</span></div>
         <div style="margin:0 0 6px">${chip(k)}</div>
         <div class="dbar"><i style="width:${ip}%;background:${k==="done"?'var(--ok)':'var(--or)'}"></i></div>
@@ -878,14 +871,15 @@ function renderMaster(){
   $("masterList").innerHTML=[...PARTS].sort((a,b)=>a.no.localeCompare(b.no)).map(p=>
     `<div class="mrow"><span class="dot" style="background:${COLORS[p.c].h}"></span>
       <span class="no">${p.no}</span>
-      <span class="nm">${p.kr} · ${p.es}<i>${COLORS[p.c].kr} / ${COLORS[p.c].es} — ${p.sp||"사양 미등록"}</i></span></div>`).join("");
+      <span class="nm">${p.nm}<i>${COLORS[p.c].kr} / ${COLORS[p.c].es} — ${p.sp||"사양 미등록"}</i></span>
+      <button class="sbtn off" onclick="delPart('${p.no}')">삭제</button></div>`).join("");
 }
 function renderPlanAdmin(){
   $("planAdmin").innerHTML=PLANS.slice().sort((a,b)=>a.line.localeCompare(b.line)||a.seq-b.seq).map(p=>{
     const P=part(p.no), a=acc(p.id);
     return `<div class="mrow"><span class="tag">${p.line}L·${p.shift}·${String(p.seq).padStart(2,"0")}</span>
       <span class="no">${p.no}</span>
-      <span class="nm">${P.kr}<i>계획 ${p.qty} · OK ${a.o}</i></span></div>`;
+      <span class="nm">${P.nm}<i>계획 ${p.qty} · OK ${a.o}</i></span></div>`;
   }).join("")||`<div class="empty"><strong>계획 없음</strong><span class="es">Sin planes</span></div>`;
 }
 
@@ -895,7 +889,7 @@ function renderStaff(){
   $("staffWait").innerHTML = wait.length ? wait.map(w=>`
     <div class="srow"><div class="av">${(w.name||"?").trim()[0]}</div>
       <div class="in"><div class="nm">${w.name}</div>
-        <div class="sub">사번 ${w.emp_no} · ${w.shift||"—"}조 · 신청 ${new Date(w.created_at).toLocaleDateString()}</div></div>
+        <div class="sub">사번 ${w.emp_no} · 신청 ${new Date(w.created_at).toLocaleDateString()}</div></div>
       <div class="ac"><button class="sbtn go" onclick="approve('${w.id}',true)">승인 · Aprobar</button></div>
     </div>`).join("")
     : `<div class="empty"><strong>승인 대기 없음</strong><span class="es">No hay solicitudes pendientes</span></div>`;
@@ -904,11 +898,12 @@ function renderStaff(){
     const me=w.id===USER.id, adm=w.role==="admin";
     return `<div class="srow"><div class="av ${adm?'adm':''}">${(w.name||"?").trim()[0]}</div>
       <div class="in"><div class="nm">${w.name}${me?' <span class="tag">본인</span>':''}</div>
-        <div class="sub">사번 ${w.emp_no} · ${w.shift||"—"}조 · ${adm?"관리자 · Admin":"작업자 · Operador"}</div></div>
+        <div class="sub">사번 ${w.emp_no} · ${adm?"관리자 · Admin":"작업자 · Operador"}</div></div>
       <div class="ac">
         <button class="sbtn" onclick="setRole('${w.id}','${adm?"worker":"admin"}')" ${me?"disabled":""}>
           ${adm?"관리자 해제":"관리자 지정"}</button>
-        <button class="sbtn off" onclick="approve('${w.id}',false)" ${me?"disabled":""}>차단</button>
+        <button class="sbtn" onclick="approve('${w.id}',false)" ${me?"disabled":""}>차단</button>
+        <button class="sbtn off" onclick="delStaff('${w.id}','${(w.name||"").replace(/'/g,"")}')" ${me?"disabled":""}>삭제</button>
       </div></div>`;
   }).join("") : `<div class="empty"><strong>등록된 작업자 없음</strong><span class="es">Sin personal registrado</span></div>`;
 }
@@ -923,6 +918,25 @@ async function setRole(id,role){
   if(error) return toast("실패 · Error: "+error.message);
   const w=STAFF.find(x=>x.id===id); if(w) w.role=role;
   renderStaff(); toast(role==="admin"?"관리자로 지정 · Ahora es admin":"작업자로 변경 · Ahora es operador");
+}
+
+async function delStaff(id,name){
+  if(id===USER.id) return toast("본인 계정은 삭제할 수 없다 · No puedes eliminar tu cuenta");
+  if(!confirm(`${name} 계정을 삭제하겠나?\n로그인 자체를 막으려면 Supabase 대시보드에서 사용자도 지워야 한다.\n¿Eliminar la cuenta de ${name}?`)) return;
+  const {error}=await sb.from("workers").delete().eq("id",id);
+  if(error) return toast("삭제 실패 · Error: "+error.message);
+  STAFF=STAFF.filter(w=>w.id!==id); renderStaff(); toast(`${name} 삭제 · Eliminado`);
+}
+async function delPart(no){
+  if(!confirm(`품번 ${no} 을(를) 삭제하겠나? · ¿Eliminar la parte ${no}?`)) return;
+  const {error}=await sb.from("parts").delete().eq("part_no",no);
+  if(error){
+    const {error:e2}=await sb.from("parts").update({active:false}).eq("part_no",no);
+    if(e2) return toast("삭제 실패 · Error: "+e2.message);
+    await loadAll();
+    return toast("계획에 사용 중이라 목록에서만 숨김 · En uso, solo ocultado");
+  }
+  await loadAll(); toast(`${no} 삭제 · Eliminado`);
 }
 
 /* ═══ CSV ═══ */
@@ -947,9 +961,9 @@ function parseCSV(t){
 function report(el,lines){ const e=$(el); e.innerHTML=lines.join("<br>"); e.classList.remove("hide"); }
 
 function tplPart(){
-  dl("마스터_양식.csv",[["품번","품명(한국어)","품명(스페인어)","컬러","도장사양"],
-    ["A-1023","도어 클립","Clip de puerta","BK","1C1B 무광 · 1 capa mate"],
-    ["B-3302","노즐 링","Anillo de boquilla","GY","2C1B 반광 · 2 capas semimate"]]);
+  dl("마스터_양식.csv",[["품번 / Part No","품명 / Description","컬러 / Color","도장사양 / Spec"],
+    ["A-1023","Door clip","BK","1C1B mate"],
+    ["B-3302","Nozzle ring","GY","2C1B semi-gloss"]]);
   toast("양식 내려받기 · Plantilla descargada");
 }
 function impPart(inp){
@@ -960,11 +974,11 @@ function impPart(inp){
     if(rows.length && /품번|part/i.test(rows[0][0]||"")) rows=rows.slice(1);
     const payload=[]; const err=[];
     rows.forEach((r,k)=>{
-      const no=(r[0]||"").trim().toUpperCase(), c=(r[3]||"").trim().toUpperCase();
+      const no=(r[0]||"").trim().toUpperCase(), c=(r[2]||"").trim().toUpperCase();
       if(!no){err.push(`${k+2}행 품번 없음`);return;}
-      if(!COLORS[c]){err.push(`${k+2}행 컬러 오류 (${r[3]||"공백"})`);return;}
-      payload.push({part_no:no,name_kr:(r[1]||"").trim()||no,name_es:(r[2]||"").trim()||no,
-                    color:c,spec:(r[4]||"").trim()||null,active:true});
+      if(!COLORS[c]){err.push(`${k+2}행 컬러 오류 (${r[2]||"공백"})`);return;}
+      payload.push({part_no:no,name:(r[1]||"").trim()||no,
+                    color:c,spec:(r[3]||"").trim()||null,active:true});
     });
     inp.value="";
     if(!payload.length) return report("partRep",[`등록할 행이 없다 · Sin filas válidas`,
@@ -1022,7 +1036,7 @@ function openSearch(m){
 }
 function renderSearch(){
   const q=$("sQ").value.trim().toUpperCase();
-  const rows=PARTS.filter(p=>p.no.toUpperCase().includes(q)||p.kr.includes(q)||p.es.toUpperCase().includes(q))
+  const rows=PARTS.filter(p=>p.no.toUpperCase().includes(q)||p.nm.toUpperCase().includes(q))
                   .sort((a,b)=>a.no.localeCompare(b.no));
   if(!rows.length){ $("sList").innerHTML=`<div class="empty"><strong>검색 결과 없음</strong>
       <span class="es">Sin resultados — revisa el maestro</span></div>`; return; }
@@ -1034,18 +1048,19 @@ function renderSearch(){
     out+=`<div class="item" onclick="pick('${p.no}')">
       <span class="dot" style="background:${COLORS[p.c].h}"></span>
       <span class="no">${hi}</span>
-      <span class="nm">${p.kr}<i>${p.es} · ${p.sp||COLORS[p.c].es}</i></span></div>`;
+      <span class="nm">${p.nm}<i>${p.sp||COLORS[p.c].es}</i></span></div>`;
   });
   $("sList").innerHTML=out;
 }
 async function pick(no){
   if(searchMode==="plan"){
     const P=part(no); $("pPart").dataset.no=no;
-    $("pPart").innerHTML=`${no} <i class="es">${P.kr} · ${P.es}</i>`; closeAll(); return;
+    $("pPart").innerHTML=`${no} <i class="es">${P.nm}</i>`; closeAll(); return;
   }
   closeAll();
   const seqN=PLANS.filter(p=>p.line===curLine).length+1;
-  const {data,error}=await sb.from("plans").insert({work_date:today(),line_id:curLine,shift:USER.shift,
+  const lineShift=(PLANS.filter(p=>p.line===curLine).slice(-1)[0]||{}).shift||"A";
+  const {data,error}=await sb.from("plans").insert({work_date:today(),line_id:curLine,shift:lineShift,
     part_no:no,plan_qty:0,seq:seqN,is_adhoc:true,created_by:USER.id}).select().single();
   if(error) return toast("등록 실패 · Error: "+error.message);
   await loadAll();
@@ -1066,10 +1081,10 @@ async function addPart(){
   const no=$("mNo").value.trim().toUpperCase();
   if(!no) return toast("품번을 입력해라 · Ingresa el número de parte");
   if(PARTS.some(p=>p.no===no)) return toast("이미 등록된 품번 · Ya existe");
-  const {error}=await sb.from("parts").insert({part_no:no,name_kr:$("mKr").value.trim()||no,
-    name_es:$("mEs").value.trim()||no,color:$("mCol").value,spec:$("mSp").value.trim()||null});
+  const {error}=await sb.from("parts").insert({part_no:no,name:$("mNm").value.trim()||no,
+    color:$("mCol").value,spec:$("mSp").value.trim()||null});
   if(error) return toast("실패 · Error: "+error.message);
-  ["mNo","mKr","mEs","mSp"].forEach(i=>$(i).value=""); await loadAll();
+  ["mNo","mNm","mSp"].forEach(i=>$(i).value=""); await loadAll();
   toast("마스터 추가 완료 · Agregado al maestro");
 }
 

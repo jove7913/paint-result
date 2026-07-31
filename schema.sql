@@ -13,22 +13,32 @@ create table if not exists paint.workers (
   id          uuid primary key references auth.users(id) on delete cascade,
   emp_no      text unique not null,
   name        text not null,
-  shift       text check (shift in ('A','B')),
   role        text not null default 'worker' check (role in ('worker','admin')),
   approved    boolean not null default false,
   created_at  timestamptz not null default now()
 );
 
 -- ── 품번 마스터 ───────────────────────────────────────────
--- 품번 / 품명 / 컬러 / 도장사양 네 가지만 관리한다.
+-- 품번 / 품명 / 컬러 / 도장사양 네 가지만 관리한다. 품명은 영문 하나.
 create table if not exists paint.parts (
   part_no   text primary key,
-  name_kr   text,
-  name_es   text,
+  name      text,                                  -- 품명 (영문)
   color     text check (color in ('BK','SL','GY','WH')),
   spec      text,                                  -- 도장사양
   active    boolean not null default true
 );
+
+-- 이전 버전(품명 2칸)으로 이미 만들었다면 아래가 자동으로 합쳐준다
+do $$
+begin
+  if exists (select 1 from information_schema.columns
+             where table_schema='paint' and table_name='parts' and column_name='name_kr') then
+    alter table paint.parts add column if not exists name text;
+    update paint.parts set name = coalesce(nullif(name_es,''), nullif(name_kr,''), part_no) where name is null;
+    alter table paint.parts drop column if exists name_kr;
+    alter table paint.parts drop column if exists name_es;
+  end if;
+end $$;
 
 -- ── 계획 ─────────────────────────────────────────────────
 -- seq = 라인별 표시 순서. 작업자 화면은 이 순서 그대로 보여준다.
@@ -107,11 +117,10 @@ create trigger trg_log_edit before update on paint.results
 create or replace function paint.on_signup() returns trigger
 language plpgsql security definer set search_path = paint, public as $$
 begin
-  insert into paint.workers (id, emp_no, name, shift)
+  insert into paint.workers (id, emp_no, name)
   values (new.id,
           coalesce(new.raw_user_meta_data->>'emp_no', new.id::text),
-          coalesce(new.raw_user_meta_data->>'name', '이름 미등록'),
-          new.raw_user_meta_data->>'shift')
+          coalesce(new.raw_user_meta_data->>'name', '이름 미등록'))
   on conflict (id) do nothing;
   return new;
 end $$;
@@ -141,6 +150,7 @@ alter table paint.result_edits enable row level security;
 
 -- 여러 번 실행해도 되도록 기존 정책을 먼저 지운다
 drop policy if exists w_read   on paint.workers;
+drop policy if exists w_delete on paint.workers;
 drop policy if exists w_admin  on paint.workers;
 drop policy if exists p_read   on paint.parts;
 drop policy if exists p_write  on paint.parts;
@@ -159,6 +169,8 @@ create policy w_read  on paint.workers for select
   using (id = auth.uid() or paint.is_approved());
 create policy w_admin on paint.workers for update
   using (paint.is_admin()) with check (paint.is_admin());
+-- 작업자 삭제는 관리자만 (로그인 계정 자체는 대시보드 Authentication → Users 에서 삭제)
+create policy w_delete on paint.workers for delete using (paint.is_admin());
 
 -- parts / plans: 승인된 사용자는 읽기, 등록·수정은 관리자만
 create policy p_read  on paint.parts for select using (paint.is_approved());
@@ -177,6 +189,25 @@ create policy r_update on paint.results for update using (paint.is_approved()) w
 create policy r_delete on paint.results for delete using (paint.is_admin());
 
 create policy re_read on paint.result_edits for select using (paint.is_approved());
+
+-- ═══ 참조 정리 ════════════════════════════════════════════
+-- 작업자를 삭제해도 실적·계획 데이터는 남고 이름만 비워지도록 한다
+do $$
+begin
+  alter table paint.results      drop constraint if exists results_input_by_fkey;
+  alter table paint.results      drop constraint if exists results_result_by_fkey;
+  alter table paint.plans        drop constraint if exists plans_created_by_fkey;
+  alter table paint.result_edits drop constraint if exists result_edits_editor_fkey;
+
+  alter table paint.results add constraint results_input_by_fkey
+    foreign key (input_by)  references paint.workers(id) on delete set null;
+  alter table paint.results add constraint results_result_by_fkey
+    foreign key (result_by) references paint.workers(id) on delete set null;
+  alter table paint.plans add constraint plans_created_by_fkey
+    foreign key (created_by) references paint.workers(id) on delete set null;
+  alter table paint.result_edits add constraint result_edits_editor_fkey
+    foreign key (editor) references paint.workers(id) on delete set null;
+end $$;
 
 -- ═══ 권한 (PostgREST 노출) ════════════════════════════════
 -- public 이 아닌 스키마는 아래 grant 가 없으면 API 에서 보이지 않는다.
@@ -199,7 +230,7 @@ end $$;
 --         OK/NG 가 입력되면 done(생산종료)
 create or replace view paint.v_progress as
 select p.id, p.work_date, p.line_id, p.shift, p.seq, p.part_no, p.plan_qty, p.is_adhoc,
-       pt.name_kr, pt.name_es, pt.color, pt.spec,
+       pt.name, pt.color, pt.spec,
        r.started_at, r.input_qty, r.ok_qty, r.ng_qty, r.ftt_pct, r.comment,
        round(coalesce(r.ok_qty,0)::numeric / nullif(p.plan_qty,0) * 100, 1) as achieve_pct,
        case when r.id is null then 'wait'
@@ -210,11 +241,11 @@ join paint.parts pt on pt.part_no = p.part_no
 left join paint.results r on r.plan_id = p.id;
 
 -- ═══ 초기 데이터 ══════════════════════════════════════════
-insert into paint.parts (part_no, name_kr, name_es, color, spec) values
- ('A-1023','도어 클립','Clip de puerta','BK','1C1B 무광 · 1 capa mate'),
- ('A-2210','커버 브라켓','Soporte de cubierta','SL','2C1B 메탈릭 · 2 capas metálico'),
- ('B-1140','힌지 캡','Tapa de bisagra','BK','1C1B 무광 · 1 capa mate'),
- ('B-3302','노즐 링','Anillo de boquilla','GY','2C1B 반광 · 2 capas semimate')
+insert into paint.parts (part_no, name, color, spec) values
+ ('A-1023','Door clip','BK','1C1B mate'),
+ ('A-2210','Cover bracket','SL','2C1B metallic'),
+ ('B-1140','Hinge cap','BK','1C1B mate'),
+ ('B-3302','Nozzle ring','GY','2C1B semi-gloss')
 on conflict do nothing;
 
 -- 최초 관리자 지정: 본인 계정으로 가입한 뒤 아래 실행
