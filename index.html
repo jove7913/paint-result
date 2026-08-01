@@ -714,7 +714,7 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
 <div id="tv" class="hide">
   <div class="tvbar-h">
     <div class="mk">NKU</div>
-    <h2>도장 생산현황 <i>Estado de producción</i></h2>
+    <h2>도장 생산현황 <i id="tvShift">—</i></h2>
     <div style="text-align:right">
       <div class="tvclock" id="tvClock">--:--</div>
       <div class="tvsync" id="tvSync">—</div>
@@ -783,7 +783,7 @@ let PARTS=[], PLANS=[], RESULTS=[], WORKERS={}, STAFF=[];
 const today = () => new Date().toISOString().slice(0,10);
 
 let USER=null, curLine=null, curPlan=null, curRes=null, searchMode="plan", view="home", seq=100;
-const BUILD="2026-07-31-21";
+const BUILD="2026-07-31-22";
 const $=id=>document.getElementById(id);
 const part=no=>PARTS.find(p=>p.no===no)||{no,nm:"—",c:"BK",sp:"",vh:""};
 const res=pid=>RESULTS.find(r=>r.pid===pid)||null;
@@ -798,7 +798,7 @@ const now=()=>new Date().toTimeString().slice(0,5);
 
 /* ═══ 날짜 · 근무조 유틸 ═══ */
 const TODAY = new Date().toISOString().slice(0,10);
-const YESTERDAY = (()=>{const d=new Date(); d.setDate(d.getDate()-1); return d.toISOString().slice(0,10);})();
+const yday = () => { const d=new Date(); d.setDate(d.getDate()-1); return d.toISOString().slice(0,10); };
 const dayPlans = () => PLANS.filter(p=>p.date===TODAY);
 const SH = {A:"주간 · Día", B:"야간 · Noche"};
 const dLabel = d => {
@@ -924,7 +924,7 @@ async function logout(ev){
 async function loadAll(retry=4){
   const [pa,pl,rs,wk]=await Promise.all([
     sb.from("parts").select("*"),
-    sb.from("plans").select("*").gte("work_date",YESTERDAY).order("work_date").order("line_id").order("seq"),
+    sb.from("plans").select("*").gte("work_date",yday()).order("work_date").order("line_id").order("seq"),
     sb.from("results").select("*"),
     sb.from("workers").select("*").order("created_at")
   ]);
@@ -1644,7 +1644,7 @@ function openTV(){
   renderTV();
   startSlide();
   tvTimer=setInterval(()=>loadAll(),60000);              // 1분마다 서버에서 다시 읽는다
-  tvClockTimer=setInterval(()=>{$("tvClock").textContent=now();},10000);
+  tvClockTimer=setInterval(()=>{ $("tvClock").textContent=now(); watchShift(); },10000);
   const el=document.documentElement;
   if(el.requestFullscreen) el.requestFullscreen().catch(()=>{});
 }
@@ -1671,6 +1671,9 @@ function closeTV(){
 function renderTV(){
   $("tvClock").textContent=now();
   $("tvSync").textContent=`갱신 ${now()} · Actualizado`;
+  const cur=autoSel();
+  const sf=$("tvShift");
+  if(sf) sf.textContent=`${dLabel(cur.date)} ${cur.shift==="A"?"주간 · Día":"야간 · Noche"}`;
   const lineData=["1","2","3","4","5"].map(L=>{
     const ps=tvPlans().filter(p=>p.line===L);
     const q=ps.reduce((s,p)=>s+p.qty,0);
@@ -1783,6 +1786,12 @@ function paintTV(){
 }
 function slideTo(i){
   slideIdx=i; paintTV(); startSlide();
+}
+let lastShiftKey=null;
+function watchShift(){
+  const c=autoSel(), k=c.date+c.shift;
+  if(lastShiftKey && k!==lastShiftKey){ renderTV(); }
+  lastShiftKey=k;
 }
 function startSlide(){
   clearInterval(slideTimer);
