@@ -597,7 +597,33 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
       <button onclick="setFilter('run',this)">투입중 · En proceso</button>
       <button onclick="setFilter('done',this)">종료 · Terminado</button>
     </div>
-    <div id="dashList" style="margin-bottom:24px"></div>
+    <div id="dashList" style="margin-bottom:18px"></div>
+    <div class="sec"><h2>지난 실적 내려받기<i class="es">Descargar resultados en Excel</i></h2></div>
+    <div class="card pad" style="margin-bottom:24px">
+      <p class="note" style="margin:0 0 11px">비워두면 전체 기간·전체 근무조·전체 라인을 받는다.
+        <span class="es">Déjalo vacío para descargar todo.</span></p>
+      <div class="row2">
+        <label class="f"><span>시작일<i class="es">Desde</i></span>
+          <input class="i" id="exFrom" type="date"></label>
+        <label class="f"><span>종료일<i class="es">Hasta</i></span>
+          <input class="i" id="exTo" type="date"></label>
+      </div>
+      <div class="row2">
+        <label class="f"><span>근무조<i class="es">Turno</i></span>
+          <select class="i" id="exShift">
+            <option value="">전체 · Todo</option>
+            <option value="A">주간 · Día</option>
+            <option value="B">야간 · Noche</option></select></label>
+        <label class="f"><span>라인<i class="es">Línea</i></span>
+          <select class="i" id="exLine">
+            <option value="">전체 · Todo</option>
+            <option value="1">1번라인</option><option value="2">2번라인</option>
+            <option value="3">3번라인</option><option value="4">4번라인</option>
+            <option value="5">5번라인</option></select></label>
+      </div>
+      <button class="btn" onclick="exportXlsx()">엑셀 내려받기<i class="es">Descargar Excel</i></button>
+      <div id="exRep" class="okbox hide"></div>
+    </div>
   </section>
 
   <section id="v-master" class="wrap hide">
@@ -808,7 +834,7 @@ function tzTime(v){
 const today = () => ymd();
 
 let USER=null, curLine=null, curPlan=null, curRes=null, searchMode="plan", view="home", seq=100;
-const BUILD="2026-07-31-24";
+const BUILD="2026-07-31-25";
 const $=id=>document.getElementById(id);
 const part=no=>PARTS.find(p=>p.no===no)||{no,nm:"—",c:"BK",sp:"",vh:""};
 const res=pid=>RESULTS.find(r=>r.pid===pid)||null;
@@ -1485,6 +1511,134 @@ async function delPart(no, btn){
     return toast("계획에 사용 중이라 목록에서만 숨김 · En uso, solo ocultado");
   }
   await loadAll(); toast(`${no} 삭제 · Eliminado`);
+}
+
+
+/* ═══ 엑셀(.xlsx) 만들기 — 외부 라이브러리 없이 ═══ */
+const CRC_T=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;})();
+function crc32(u8){let c=0xFFFFFFFF;for(let i=0;i<u8.length;i++)c=CRC_T[(c^u8[i])&0xFF]^(c>>>8);return (c^0xFFFFFFFF)>>>0;}
+function zipStore(files){
+  const enc=new TextEncoder(); const parts=[]; const cen=[]; let off=0;
+  const u16=v=>[v&255,(v>>8)&255], u32=v=>[v&255,(v>>8)&255,(v>>16)&255,(v>>24)&255];
+  files.forEach(f=>{
+    const name=enc.encode(f.name), data=(typeof f.data==="string")?enc.encode(f.data):f.data;
+    const crc=crc32(data);
+    const lh=[...u32(0x04034b50),...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0),
+              ...u32(crc),...u32(data.length),...u32(data.length),...u16(name.length),...u16(0)];
+    parts.push(new Uint8Array(lh),name,data);
+    cen.push({name,crc,len:data.length,off});
+    off+=lh.length+name.length+data.length;
+  });
+  const cd=[];
+  cen.forEach(c=>{
+    const h=[...u32(0x02014b50),...u16(20),...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0),
+             ...u32(c.crc),...u32(c.len),...u32(c.len),...u16(c.name.length),
+             ...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(c.off)];
+    cd.push(new Uint8Array(h),c.name);
+  });
+  const cdLen=cd.reduce((a,b)=>a+b.length,0);
+  const eocd=new Uint8Array([...u32(0x06054b50),...u16(0),...u16(0),...u16(cen.length),...u16(cen.length),
+                             ...u32(cdLen),...u32(off),...u16(0)]);
+  const all=[...parts,...cd,eocd];
+  const total=all.reduce((a,b)=>a+b.length,0);
+  const out=new Uint8Array(total); let p=0;
+  all.forEach(b=>{out.set(b,p);p+=b.length;});
+  return out;
+}
+const xesc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+function colName(n){let s="";while(n>0){const m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=Math.floor((n-1)/26);}return s;}
+function sheetXml(rows){
+  let x='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>';
+  rows.forEach((row,ri)=>{
+    x+=`<row r="${ri+1}">`;
+    row.forEach((v,ci)=>{
+      const ref=colName(ci+1)+(ri+1);
+      if(v===null||v===undefined||v==="") return;
+      if(typeof v==="number" && isFinite(v)) x+=`<c r="${ref}"><v>${v}</v></c>`;
+      else x+=`<c r="${ref}" t="inlineStr"><is><t xml:space="preserve">${xesc(v)}</t></is></c>`;
+    });
+    x+='</row>';
+  });
+  return x+'</sheetData></worksheet>';
+}
+function makeXlsx(rows, sheetName){
+  const files=[
+    {name:"[Content_Types].xml",data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>'},
+    {name:"_rels/.rels",data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'},
+    {name:"xl/workbook.xml",data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="'+xesc(sheetName||"Sheet1")+'" sheetId="1" r:id="rId1"/></sheets></workbook>'},
+    {name:"xl/_rels/workbook.xml.rels",data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>'},
+    {name:"xl/worksheets/sheet1.xml",data:sheetXml(rows)}
+  ];
+  return zipStore(files);
+}
+function dlBlob(name,u8,mime){
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([u8],{type:mime}));
+  a.download=name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+const EX_HEAD=["일자","근무조","라인","순번","차종","품번","품명","컬러","도장사양",
+  "계획수량","투입시작","투입수량","OK","NG","직행율(%)","불량율(%)","상태","코멘트","투입자","결과입력자"];
+const EX_STATE={wait:"대기",run:"투입중",done:"생산종료"};
+
+/* ═══ 지난 실적 엑셀 내려받기 ═══ */
+async function exportXlsx(){
+  const from=$("exFrom").value, to=$("exTo").value;
+  const sh=$("exShift").value, ln=$("exLine").value;
+  const rep=$("exRep"); rep.classList.remove("hide");
+  rep.style.background="var(--bg)"; rep.style.color="var(--ink)";
+  rep.textContent="자료를 모으는 중… · Preparando…";
+  try{
+    let q=sb.from("plans").select("*");
+    if(from) q=q.gte("work_date",from);
+    if(to)   q=q.lte("work_date",to);
+    if(sh)   q=q.eq("shift",sh);
+    if(ln)   q=q.eq("line_id",ln);
+    const {data:plans,error}=await q.order("work_date").order("shift").order("line_id").order("seq");
+    if(error) throw new Error(error.message);
+    if(!plans || !plans.length){ return reportRed("exRep","조건에 맞는 계획이 없다 · Sin datos para ese filtro"); }
+
+    // 실적을 나눠서 가져온다 (한 번에 너무 많이 요청하지 않도록)
+    const ids=plans.map(p=>p.id); const rmap={};
+    for(let i=0;i<ids.length;i+=300){
+      const {data:rs}=await sb.from("results").select("*").in("plan_id",ids.slice(i,i+300));
+      (rs||[]).forEach(r=>rmap[r.plan_id]=r);
+    }
+    // 품번 정보
+    const {data:pt}=await sb.from("parts").select("*");
+    const pmap={}; (pt||[]).forEach(x=>pmap[x.part_no]=x);
+    // 이름
+    const {data:wk}=await sb.from("workers").select("id,name");
+    const nmap={}; (wk||[]).forEach(w=>nmap[w.id]=w.name);
+
+    const rows=[EX_HEAD];
+    plans.forEach(p=>{
+      const P=pmap[p.part_no]||{}, r=rmap[p.id];
+      const inq=r?r.input_qty:0, ok=r?r.ok_qty:0, ng=r?r.ng_qty:0;
+      const st=!r?"wait":((ok+ng>0)?"done":"run");
+      rows.push([
+        p.work_date, p.shift==="A"?"주간":"야간", p.line_id+"번라인", p.seq||"",
+        P.vehicle||"", p.part_no, P.name||"", P.color||"", P.spec||"",
+        p.plan_qty||0,
+        r&&r.started_at?String(r.started_at).slice(0,5):"",
+        inq, ok, ng,
+        inq?Math.round(ok/inq*1000)/10:"",
+        inq?Math.round(ng/inq*1000)/10:"",
+        EX_STATE[st],
+        (r&&r.comment)||"",
+        (r&&nmap[r.input_by])||"",
+        (r&&nmap[r.result_by])||""
+      ]);
+    });
+
+    const tag=(from||"전체")+"_"+(to||"전체")+(sh?("_"+(sh==="A"?"주간":"야간")):"")+(ln?("_"+ln+"L"):"");
+    dlBlob(`도장실적_${tag}.xlsx`, makeXlsx(rows,"도장실적"),
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    rep.style.background="var(--ok-s)"; rep.style.color="var(--ok)";
+    rep.innerHTML=`<b>${plans.length}건</b> 내려받기 완료 · Descargado`;
+    toast(`실적 ${plans.length}건 · Excel`);
+  }catch(e){ reportRed("exRep","내려받기 실패 · Error<br>"+e.message); }
 }
 
 /* ═══ CSV ═══ */
