@@ -489,7 +489,7 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
       <button class="btn ghost sm" onclick="selNow()" style="width:auto;padding:11px 14px;flex:none">현재<i class="es">Ahora</i></button>
     </div>
     <div class="sec"><h2>라인 선택 <span id="selNow2" style="color:var(--or-d);font-weight:600"></span>
-      <i class="es">Toca la línea donde estás trabajando</i></h2></div>
+      <i class="es">Toca la línea donde estás trabajando — hora local de planta</i></h2></div>
     <div class="lgrid" id="lineGrid" style="margin-bottom:24px"></div>
   </section>
 
@@ -780,14 +780,35 @@ const mail = emp => `${emp}@${EMAIL_DOMAIN}`;
 const pass = (emp,pin) => `NKU-${emp}-${pin}`;   // 4자리 PIN을 6자 이상으로 확장
 
 let PARTS=[], PLANS=[], RESULTS=[], WORKERS={}, STAFF=[];
-/* 날짜는 반드시 현지(멕시코) 기준으로 계산한다.
-   toISOString() 은 UTC 기준이라 오후 6시 이후 하루가 밀린다. */
-const ymd = (d=new Date()) =>
-  `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+/* ═══ 공장 현지시간 고정 ═══
+   보는 기기의 표준시간대와 무관하게 몬테레이 기준으로 날짜·시각을 계산한다.
+   한국에서 접속해도 현장과 같은 날짜·근무조가 보인다. */
+const PLANT_TZ = "America/Monterrey";
+function plantNow(){
+  const p = new Intl.DateTimeFormat("en-CA",{timeZone:PLANT_TZ,
+    year:"numeric",month:"2-digit",day:"2-digit",
+    hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(new Date());
+  const g = t => p.find(x=>x.type===t).value;
+  return {date:`${g("year")}-${g("month")}-${g("day")}`, h:+g("hour")%24, m:+g("minute")};
+}
+const ymd = () => plantNow().date;
+function addDays(dateStr,n){
+  const [y,m,d]=dateStr.split("-").map(Number);
+  const dt=new Date(Date.UTC(y,m-1,d)); dt.setUTCDate(dt.getUTCDate()+n);
+  return dt.toISOString().slice(0,10);
+}
+/* 저장된 시각(UTC)을 공장 현지시각 HH:MM 으로 */
+function tzTime(v){
+  if(!v) return "";
+  try{
+    return new Intl.DateTimeFormat("en-GB",{timeZone:PLANT_TZ,hour:"2-digit",minute:"2-digit",hour12:false})
+      .format(new Date(v));
+  }catch(e){ return ""; }
+}
 const today = () => ymd();
 
 let USER=null, curLine=null, curPlan=null, curRes=null, searchMode="plan", view="home", seq=100;
-const BUILD="2026-07-31-23";
+const BUILD="2026-07-31-24";
 const $=id=>document.getElementById(id);
 const part=no=>PARTS.find(p=>p.no===no)||{no,nm:"—",c:"BK",sp:"",vh:""};
 const res=pid=>RESULTS.find(r=>r.pid===pid)||null;
@@ -798,11 +819,11 @@ const state=pid=>{const r=res(pid); return !r?"wait":(r.ok+r.ng>0?"done":"run");
 const ST={wait:["대기 · Sin iniciar","wait"],run:["투입중 · En proceso","run"],done:["생산종료 · Terminado","done"]};
 const chip=k=>`<span class="st ${ST[k][1]}">${k==="run"?'<i class="ldot"></i>':""}${ST[k][0]}</span>`;
 const ftt=r=>r&&r.in?r.ok/r.in*100:null;
-const now=()=>new Date().toTimeString().slice(0,5);
+const now=()=>{const n=plantNow();return `${String(n.h).padStart(2,"0")}:${String(n.m).padStart(2,"0")}`;};
 
 /* ═══ 날짜 · 근무조 유틸 ═══ */
 const TODAY = ymd();
-const yday = () => { const d=new Date(); d.setDate(d.getDate()-1); return ymd(d); };
+const yday = () => addDays(ymd(),-1);
 const dayPlans = () => PLANS.filter(p=>p.date===TODAY);
 const SH = {A:"주간 · Día", B:"야간 · Noche"};
 const dLabel = d => {
@@ -829,12 +850,10 @@ function parseShift(v){
    주간 07:30~19:30 · 야간 19:30~다음날 07:30
    새벽 시간(00:00~07:30)은 전날 야간조로 본다 */
 function autoSel(){
-  const n=new Date(), m=n.getHours()*60+n.getMinutes(), d=new Date(n);
-  let shift;
-  if(m < 7*60+30){ shift="B"; d.setDate(d.getDate()-1); }
-  else if(m < 19*60+30){ shift="A"; }
-  else { shift="B"; }
-  return {date:ymd(d), shift};
+  const n=plantNow(), mins=n.h*60+n.m;
+  if(mins < 7*60+30)  return {date:addDays(n.date,-1), shift:"B"};   // 새벽 → 전날 야간
+  if(mins < 19*60+30) return {date:n.date, shift:"A"};               // 주간
+  return {date:n.date, shift:"B"};                                    // 야간
 }
 let SEL = autoSel();
 function autoSelSmart(){
@@ -955,9 +974,9 @@ async function loadAll(retry=4){
   if(!rs.error){
     RESULTS=(rs.data||[]).filter(x=>PLANS.some(p=>p.id===x.plan_id)).map(x=>({
       id:x.id,pid:x.plan_id,st:hm(x.started_at),in:x.input_qty,ok:x.ok_qty,ng:x.ng_qty,cm:x.comment||"",
-      inBy:nm(x.input_by),inAt:hm(x.input_at?new Date(x.input_at).toTimeString():""),
+      inBy:nm(x.input_by),inAt:tzTime(x.input_at),
       resBy:x.result_by?nm(x.result_by):null,
-      resAt:x.result_at?new Date(x.result_at).toTimeString().slice(0,5):null}));
+      resAt:x.result_at?tzTime(x.result_at):null}));
   }
 
   // 로그인 직후 인증 토큰이 붙기 전에 조회가 나가면 오류 없이 빈 결과가 온다.
