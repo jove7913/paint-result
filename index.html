@@ -841,7 +841,7 @@ function tzTime(v){
 const today = () => ymd();
 
 let USER=null, curLine=null, curPlan=null, curRes=null, searchMode="plan", view="home", seq=100;
-const BUILD="2026-07-31-26";
+const BUILD="2026-07-31-27";
 const $=id=>document.getElementById(id);
 const part=no=>PARTS.find(p=>p.no===no)||{no,nm:"—",c:"BK",sp:"",vh:""};
 const res=pid=>RESULTS.find(r=>r.pid===pid)||null;
@@ -1863,10 +1863,13 @@ function renderTV(){
     const q=ps.reduce((s,p)=>s+p.qty,0);
     const a=ps.reduce((s,p)=>{const x=acc(p.id);return{i:s.i+x.i,o:s.o+x.o,n:s.n+x.n}},{i:0,o:0,n:0});
     const running=ps.filter(p=>state(p.id)==="run");
-    const done=ps.filter(p=>state(p.id)==="done").length;
-    return {L,ps,q,a,running,done,
+    const donePs=ps.filter(p=>state(p.id)==="done");
+    const done=donePs.length;
+    // 직행율은 생산종료된 품목만으로 계산한다 (투입만 된 품목은 제외)
+    const dn=donePs.reduce((s,p)=>{const x=acc(p.id);return{i:s.i+x.i,o:s.o+x.o,n:s.n+x.n}},{i:0,o:0,n:0});
+    return {L,ps,q,a,dn,running,done,
       pct:q?Math.round(a.i/q*100):0,
-      f:a.i?a.o/a.i*100:null,
+      f:dn.i?dn.o/dn.i*100:null,
       k:running.length?"run":(ps.length&&done===ps.length?"done":"wait")};
   });
 
@@ -1881,7 +1884,7 @@ function renderTV(){
     const shown = sorted.slice(0,LIMIT);
     const line = p=>{
       const P=part(p.no), r=res(p.id), x=acc(p.id), k=state(p.id);
-      const dr = x.i ? (x.n/x.i*100) : null;
+      const dr = (k==="done" && x.i) ? (x.n/x.i*100) : null;   // 종료된 품목만
       return `<div class="tvi ${k}"><span class="mk">${MK[k]}</span>
         <span class="no">${p.no}</span>
         <span class="col"><i class="sw" style="background:${dotColor(P.c)}"></i>${cname(P.c)}</span>
@@ -1914,14 +1917,16 @@ function renderTV(){
       <div class="tvb"><i class="${d.pct>=100?'g':''}" style="width:${Math.min(100,d.pct)}%"></i></div>
       <div class="tvn"><span>OK <b>${d.a.o.toLocaleString()}</b></span>
         <span class="r">NG <b>${d.a.n}</b></span>
-        <span>직행율 <b>${d.f===null?"—":d.f.toFixed(1)+"%"}</b></span></div>
+        <span>직행율 <b>${d.f===null?"—":d.f.toFixed(1)+"%"}</b>${d.done?`<span style="opacity:.6"> (종료 ${d.done})</span>`:""}</span></div>
       <div class="tvitems ${two?"two":""}">${body}</div>
     </div>`;
   });
 
   const Q=lineData.reduce((s,d)=>s+d.q,0);
   const A=lineData.reduce((s,d)=>({i:s.i+d.a.i,o:s.o+d.a.o,n:s.n+d.a.n}),{i:0,o:0,n:0});
-  const P=Q?Math.round(A.i/Q*100):0, F=A.i?A.o/A.i*100:null;
+  const D=lineData.reduce((s,d)=>({i:s.i+d.dn.i,o:s.o+d.dn.o,n:s.n+d.dn.n}),{i:0,o:0,n:0});
+  const doneCnt=lineData.reduce((s,d)=>s+d.done,0);
+  const P=Q?Math.round(A.i/Q*100):0, F=D.i?D.o/D.i*100:null;
   const runN=tvPlans().filter(p=>state(p.id)==="run").length;
   const doneN=tvPlans().filter(p=>state(p.id)==="done").length;
   const mini=lineData.map(d=>`<div class="tvmr"><span class="l">${d.L}</span>
@@ -1937,7 +1942,7 @@ function renderTV(){
     <div class="tvb"><i class="${P>=100?'g':''}" style="width:${Math.min(100,P)}%"></i></div>
     <div class="tvn"><span>OK <b>${A.o.toLocaleString()}</b></span>
       <span class="r">NG <b>${A.n}</b></span>
-      <span>직행율 <b>${F===null?"—":F.toFixed(1)+"%"}</b></span></div>
+      <span>직행율 <b>${F===null?"—":F.toFixed(1)+"%"}</b>${doneCnt?`<span style="opacity:.6"> (종료 ${doneCnt})</span>`:""}</span></div>
     <div class="tvmini">${mini}</div>
   </div>`;
   TILES = tiles.concat([totalTile]);
