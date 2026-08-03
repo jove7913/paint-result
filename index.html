@@ -334,8 +334,15 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
 .tvt.done{border-left-color:var(--tvfillg)}
 .tvt.tot{background:var(--tvcard2);border-left-color:var(--tvline)}
 .tvth{display:flex;align-items:center;gap:7px;margin-bottom:clamp(4px,.5vw,10px)}
-.tvln{font-size:clamp(14px,1.5vw,30px);font-weight:700;letter-spacing:-.03em}
-.tvln i{font-style:normal;font-weight:400;color:var(--tvdim);font-size:.6em;margin-left:5px}
+.tvlno{font-size:clamp(30px,3.6vw,72px);font-weight:800;letter-spacing:-.05em;line-height:.9;
+  color:var(--tvfill);font-variant-numeric:tabular-nums;flex:none}
+.tvlno.tot{font-size:clamp(22px,2.4vw,46px);color:var(--tvdim)}
+.tvt.done .tvlno{color:var(--tvfillg)}
+.tvt.wait .tvlno{color:var(--tvdim)}
+.tvln{font-size:clamp(12px,1.15vw,23px);font-weight:700;letter-spacing:-.03em;line-height:1.15}
+.tvln i{font-style:normal;font-weight:400;color:var(--tvdim);font-size:.72em;display:block;margin-top:1px}
+.tvgrid.solo .tvlno{font-size:clamp(52px,7vw,140px)}
+.tvgrid.solo .tvlno.tot{font-size:clamp(38px,4.6vw,92px)}
 .tvchip{margin-left:auto;font-size:clamp(9px,.72vw,14px);font-weight:700;padding:4px 9px;border-radius:20px;
   display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .tvchip.run{background:var(--tvrunbg);color:var(--tvrun)}
@@ -396,8 +403,8 @@ mark{background:#FFE9C9;color:inherit;border-radius:2px;padding:0 1px}
 /* ── 전체화면 순환(슬라이드) 모드 ── */
 .tvgrid.solo{grid-template-columns:1fr;grid-template-rows:1fr}
 .tvgrid.solo .tvt{border-left-width:clamp(6px,.7vw,14px)}
-.tvgrid.solo .tvln{font-size:clamp(22px,3.2vw,62px)}
-.tvgrid.solo .tvln i{font-size:.5em}
+.tvgrid.solo .tvln{font-size:clamp(18px,2.2vw,44px)}
+.tvgrid.solo .tvln i{font-size:.62em}
 .tvgrid.solo .tvchip{font-size:clamp(12px,1.25vw,24px);padding:6px 14px}
 .tvgrid.solo .tvbig{font-size:clamp(56px,10vw,180px)}
 .tvgrid.solo .tvratio{font-size:clamp(15px,1.9vw,36px)}
@@ -834,7 +841,7 @@ function tzTime(v){
 const today = () => ymd();
 
 let USER=null, curLine=null, curPlan=null, curRes=null, searchMode="plan", view="home", seq=100;
-const BUILD="2026-07-31-25";
+const BUILD="2026-07-31-26";
 const $=id=>document.getElementById(id);
 const part=no=>PARTS.find(p=>p.no===no)||{no,nm:"—",c:"BK",sp:"",vh:""};
 const res=pid=>RESULTS.find(r=>r.pid===pid)||null;
@@ -1273,7 +1280,7 @@ function renderDash(){
                   .sort((x,y)=>order[state(x.id)]-order[state(y.id)]||x.seq-y.seq);
     const items=shown.length?shown.map(p=>{
       const P=part(p.no), r=res(p.id), x=acc(p.id), k=state(p.id);
-      const ip=p.qty?Math.min(100,Math.round(x.o/p.qty*100)):0, f=ftt(r);
+      const ip=p.qty?Math.min(100,Math.round(x.i/p.qty*100)):0, f=ftt(r);
       return `<div class="ditem">
         <div class="dtop"><span class="dot" style="background:${dotColor(P.c)}"></span>
           <span class="dno">${p.no}</span><span class="dnm">${P.nm}</span>
@@ -1858,7 +1865,7 @@ function renderTV(){
     const running=ps.filter(p=>state(p.id)==="run");
     const done=ps.filter(p=>state(p.id)==="done").length;
     return {L,ps,q,a,running,done,
-      pct:q?Math.round(a.o/q*100):0,
+      pct:q?Math.round(a.i/q*100):0,
       f:a.i?a.o/a.i*100:null,
       k:running.length?"run":(ps.length&&done===ps.length?"done":"wait")};
   });
@@ -1899,13 +1906,13 @@ function renderTV(){
       body=head+shown.map(line).join("")+more;
     }
     return `<div class="tvt ${d.k}">
-      <div class="tvth"><span class="tvln">${d.L}<i>번라인 · Línea ${d.L}</i></span>
+      <div class="tvth"><span class="tvlno">${d.L}</span><span class="tvln">번라인<i>Línea ${d.L}</i></span>
         <span class="tvchip ${d.k}">${d.k==="run"?'<i class="ldot"></i>':""}${lbl}</span></div>
       <div class="tvrow"><span class="tvbig ${d.pct>=100?'g':''}">${d.pct}<small>%</small></span>
-        <span class="tvratio"><b>${d.a.o.toLocaleString()}</b> / ${d.q.toLocaleString()}
-          <i>OK / 계획 · Plan — ${d.ps.length}품목</i></span></div>
+        <span class="tvratio"><b>${d.a.i.toLocaleString()}</b> / ${d.q.toLocaleString()}
+          <i>투입 / 계획 · Ingreso — ${d.ps.length}품목</i></span></div>
       <div class="tvb"><i class="${d.pct>=100?'g':''}" style="width:${Math.min(100,d.pct)}%"></i></div>
-      <div class="tvn"><span>투입 <b>${d.a.i.toLocaleString()}</b></span>
+      <div class="tvn"><span>OK <b>${d.a.o.toLocaleString()}</b></span>
         <span class="r">NG <b>${d.a.n}</b></span>
         <span>직행율 <b>${d.f===null?"—":d.f.toFixed(1)+"%"}</b></span></div>
       <div class="tvitems ${two?"two":""}">${body}</div>
@@ -1914,7 +1921,7 @@ function renderTV(){
 
   const Q=lineData.reduce((s,d)=>s+d.q,0);
   const A=lineData.reduce((s,d)=>({i:s.i+d.a.i,o:s.o+d.a.o,n:s.n+d.a.n}),{i:0,o:0,n:0});
-  const P=Q?Math.round(A.o/Q*100):0, F=A.i?A.o/A.i*100:null;
+  const P=Q?Math.round(A.i/Q*100):0, F=A.i?A.o/A.i*100:null;
   const runN=tvPlans().filter(p=>state(p.id)==="run").length;
   const doneN=tvPlans().filter(p=>state(p.id)==="done").length;
   const mini=lineData.map(d=>`<div class="tvmr"><span class="l">${d.L}</span>
@@ -1922,13 +1929,13 @@ function renderTV(){
       <span class="v">${d.pct}%</span></div>`).join("");
 
   const totalTile = `<div class="tvt tot">
-    <div class="tvth"><span class="tvln">전체 진도율<i>Avance total</i></span>
+    <div class="tvth"><span class="tvlno tot">全</span><span class="tvln">전체 진도율<i>Avance total</i></span>
       <span class="tvchip run"><i class="ldot"></i>투입중 ${runN} · 종료 ${doneN}</span></div>
     <div class="tvrow"><span class="tvbig ${P>=100?'g':''}">${P}<small>%</small></span>
-      <span class="tvratio"><b>${A.o.toLocaleString()}</b> / ${Q.toLocaleString()}
-        <i>OK / 계획 · Plan — ${tvPlans().length}품목</i></span></div>
+      <span class="tvratio"><b>${A.i.toLocaleString()}</b> / ${Q.toLocaleString()}
+        <i>투입 / 계획 · Ingreso — ${tvPlans().length}품목</i></span></div>
     <div class="tvb"><i class="${P>=100?'g':''}" style="width:${Math.min(100,P)}%"></i></div>
-    <div class="tvn"><span>투입 <b>${A.i.toLocaleString()}</b></span>
+    <div class="tvn"><span>OK <b>${A.o.toLocaleString()}</b></span>
       <span class="r">NG <b>${A.n}</b></span>
       <span>직행율 <b>${F===null?"—":F.toFixed(1)+"%"}</b></span></div>
     <div class="tvmini">${mini}</div>
